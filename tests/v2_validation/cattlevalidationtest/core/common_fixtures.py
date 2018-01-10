@@ -25,7 +25,7 @@ INSERVICE_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 'resources/inservicedc')
 
 TEST_IMAGE_UUID = os.environ.get('CATTLE_TEST_AGENT_IMAGE',
-                                 'docker:cattle/test-agent:v7')
+                                 'docker:kingsd/win-nodejs:5.0')
 
 SSH_HOST_IMAGE_UUID = os.environ.get('CATTLE_SSH_HOST_IMAGE',
                                      'docker:rancher/ssh-host-container:' +
@@ -132,7 +132,7 @@ CONTAINER_STATES = ["running", "stopped", "stopping"]
 check_connectivity_by_wget = True
 cert_list = {}
 
-MANAGED_NETWORK = "managed"
+MANAGED_NETWORK = "transparent"
 UNMANAGED_NETWORK = "bridge"
 
 dns_labels = {"io.rancher.container.dns": "true",
