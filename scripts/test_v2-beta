@@ -3,7 +3,7 @@
 set -e
 set -x
 
-: ${CATTLE_TEST_AGENT_IMAGE:='docker:cattle/test-agent:v7'}
+: ${CATTLE_TEST_AGENT_IMAGE:='docker:kingsd/win-nodejs:5.0'}
 : ${PHANTOMJS_BIN:='/usr/local/bin/phantomjs'}
 : ${VALIDATION_JUNIT_XML_FILE:='validationTestsJunit.xml'}
 : ${CATTLE_TEST_PARALLEL_THREADS:=1}
