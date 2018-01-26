@@ -123,7 +123,7 @@ def test_linking(client, admin_client, test_name):
 def test_ip_inject(client, test_name):
     cleanup_items = []
     try:
-        cmd = ['/bin/bash', '-c', 'sleep 5; ip addr show eth0']
+        cmd = ['powershell', 'sleep 10; ipconfig']
         container = client.create_container(name=test_name,
                                             imageUuid=TEST_IMAGE_UUID,
                                             networkMode=MANAGED_NETWORK,
