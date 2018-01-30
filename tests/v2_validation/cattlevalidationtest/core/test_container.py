@@ -304,4 +304,4 @@ def assert_stats(container):
     conn = ws.create_connection(stats.url + '?token=' + stats.token,
                                 timeout=10)
     result = conn.recv()
-    assert 'per_cpu_usage' in result
+    assert 'cpu' in result
