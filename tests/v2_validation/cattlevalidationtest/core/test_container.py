@@ -221,13 +221,16 @@ def test_create_container_with_stack(client):
     delete_all(client, [stack])
 
 
+
+
 @if_container_refactoring
 def test_create_container_without_stack(client):
-    con = create_sa_container(client)
+    con = create_sa_container(client, stack=client.list_stack(name='default')[0])
     default_env = client.list_stack(name="Default")
     assert len(default_env) == 1
     assert con.stackId == default_env[0].id
     delete_all(client, [con])
+
 
 
 @if_container_refactoring
