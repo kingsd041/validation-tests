@@ -233,46 +233,12 @@ def test_create_container_without_stack(client):
 
 
 
-@if_container_refactoring
-def test_create_container_with_healthcheck_on(client):
-    con = create_sa_container(client, healthcheck=True)
-    default_env = client.list_stack(name="Default")
-    assert len(default_env) == 1
-    assert con.stackId == default_env[0].id
-    delete_all(client, [con])
-
-
-@if_container_refactoring
-def test_container_with_healthcheck_becoming_unhealthy(client):
-    con_port = "9001"
-    con = create_sa_container(client, healthcheck=True, port=con_port)
-    # Delete requestUrl from one of the containers to trigger health check
-    # failure and service reconcile
-    mark_container_unhealthy(client, con, int(con_port))
-
-    wait_for_condition(
-        client, con,
-        lambda x: x.healthState == 'unhealthy',
-        lambda x: 'State is: ' + x.healthState)
-    con = client.reload(con)
-    assert con.healthState == "unhealthy"
-
-    wait_for_condition(
-        client, con,
-        lambda x: x.state in ('removed', 'purged'),
-        lambda x: 'State is: ' + x.healthState)
-    new_containers = client.list_container(name=con.name,
-                                           state="running",
-                                           healthState="healthy")
-    assert len(new_containers) == 1
-    delete_all(client, [con])
-
 
 @if_container_refactoring
 def test_create_container_with_sidekick(client):
     # Deploy container as as sidekick to an existing container and make sure
     # they land on the same host
-    con = create_sa_container(client, healthcheck=True)
+    con = create_sa_container(client)
     sidekick_con = create_sa_container(client, sidekick_to=con)
     con_host = get_container_host(client, con)
     sidekick_con_host = get_container_host(client, sidekick_con)
@@ -285,11 +251,11 @@ def test_create_container_with_sidekick_with_ports(client):
     # Consume host ports in 2 of the 3 hosts in the setup
     con_port = "9000"
     con_sidekick_port = "9001"
-    test_con1 = create_sa_container(client, healthcheck=True, port=con_port)
-    test_con2 = create_sa_container(client, healthcheck=True, port=con_port)
+    test_con1 = create_sa_container(client, port=con_port)
+    test_con2 = create_sa_container(client, port=con_port)
     # Deploy container as as sidekick to an existing container and make sure
     # they land on the same host
-    con = create_sa_container(client, healthcheck=True, port=con_port)
+    con = create_sa_container(client, port=con_port)
     sidekick_con = create_sa_container(client, sidekick_to=con,
                                        port=con_sidekick_port)
     con_host = get_container_host(client, con)
