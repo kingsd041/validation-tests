@@ -1,39 +1,41 @@
 from common_fixtures import *  # NOQA
 
-TEST_IMAGE = 'ibuildthecloud/helloworld'
-TEST_IMAGE_LATEST = TEST_IMAGE + ':latest'
-TEST_IMAGE_UUID = 'docker:' + TEST_IMAGE
+TEST_IMAGE = 'kingsd/win-nodejs'
+TEST_IMAGE_LATEST = TEST_IMAGE + ':5.0'
+TEST_IMAGE_UUID = 'docker:' + TEST_IMAGE_LATEST
 
 
-def test_container_run_with_options_1(client, test_name,
-                                      socat_containers):
+def test_container_run_with_options_1(client, test_name):
+    '''
+    Because windows does not support valume,dns,cap, so commented out
+    '''
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
     assert len(hosts) > 0
     host = hosts[0]
 
-    volume_in_host = "/test/container"
-    volume_in_container = "/test/vol1"
-    docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
+    #volume_in_host = "/test/container"
+    #volume_in_container = "/test/vol1"
+    #docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
 
     env_var = {"name1": "value1"}
     host_name = "host1"
     domain_name = "abc.com"
-    dns_name = ["test.com"]
-    dns_search = ["8.8.8.8"]
-    cap_add = ["CHOWN"]
-    cap_drop = ["KILL"]
-    user = "root"
+    #dns_name = ["test.com"]
+    #dns_search = ["8.8.8.8"]
+    #cap_add = ["CHOWN"]
+    #cap_drop = ["KILL"]
+    #user = "root"
     restart_policy = {"maximumRetryCount": 5, "name": u"on-failure"}
-    memory = 16000000
-    memory_swap = 16000000
-    cpu_set = "0"
-    cpu_shares = 400
-    command = ["sleep", "450"]
+    #memory = 16000000
+    #memory_swap = 16000000
+    #cpu_set = "0"
+    #cpu_shares = 400
+    command = ["powershell", "sleep", "450"]
 
     # Create a container to link the data volume of the container for
     # validate dataVolumesFrom
-
+    '''
     con_vol = client.create_container(name=test_name + "-forvolume",
                                       networkMode=MANAGED_NETWORK,
                                       imageUuid=TEST_IMAGE_UUID,
@@ -43,7 +45,7 @@ def test_container_run_with_options_1(client, test_name,
     assert con_vol.state == "running"
 
     docker_vol_from_value = con_vol.externalId
-
+    '''
     # Create container with different docker options and validate the option
     # testing with docker inspect command
 
@@ -51,63 +53,49 @@ def test_container_run_with_options_1(client, test_name,
                                 networkMode=MANAGED_NETWORK,
                                 imageUuid=TEST_IMAGE_UUID,
                                 requestedHostId=host.id,
-                                dataVolumes=docker_vol_value,
-                                dataVolumesFrom=con_vol.id,
                                 publishAllPorts=False,
                                 privileged=False,
                                 environment=env_var,
                                 hostname=host_name,
-                                domainName=domain_name,
                                 stdinOpen=False,
                                 tty=False,
-                                dns=dns_name,
-                                dnsSearch=dns_search,
-                                capAdd=cap_add,
-                                capDrop=cap_drop,
-                                user=user,
-                                memory=memory,
-                                memorySwap=memory_swap,
-                                cpuSet=cpu_set,
-                                cpuShares=cpu_shares,
+                                #user=user,
                                 restartPolicy=restart_policy,
                                 command=command
                                 )
-
     c = client.wait_success(c, 120)
     assert c.state == "running"
-
     docker_client = get_docker_client(host)
     inspect = docker_client.inspect_container(c.externalId)
     print inspect
 
-    dns_name.append(RANCHER_DNS_SERVER)
-    dns_search.append(RANCHER_DNS_SEARCH)
+    #dns_name.append(RANCHER_DNS_SERVER)
+    #dns_search.append(RANCHER_DNS_SEARCH)
 
-    assert docker_vol_value in inspect["HostConfig"]["Binds"]
-    assert inspect["HostConfig"]["VolumesFrom"] == [docker_vol_from_value]
+    #assert docker_vol_value in inspect["HostConfig"]["Binds"]
+    #assert inspect["HostConfig"]["VolumesFrom"] == [docker_vol_from_value]
     assert inspect["HostConfig"]["PublishAllPorts"] is False
     assert inspect["HostConfig"]["Privileged"] is False
     assert inspect["Config"]["OpenStdin"] is False
     assert inspect["Config"]["Tty"] is False
-    assert inspect["HostConfig"]["Dns"] == dns_name
-    assert inspect["HostConfig"]["DnsSearch"] == dns_search
+    #assert inspect["HostConfig"]["Dns"] == dns_name
+    #assert inspect["HostConfig"]["DnsSearch"] == dns_search
     assert inspect["Config"]["Hostname"] == host_name
-    assert inspect["Config"]["Domainname"] == domain_name
-    assert inspect["Config"]["User"] == user
-    assert inspect["HostConfig"]["CapAdd"] == cap_add
-    assert inspect["HostConfig"]["CapDrop"] == cap_drop
-    assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
+    #assert inspect["Config"]["Domainname"] == domain_name
+    #assert inspect["Config"]["User"] == user
+    #assert inspect["HostConfig"]["CapAdd"] == cap_add
+    #assert inspect["HostConfig"]["CapDrop"] == cap_drop
+    #assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
     assert inspect["HostConfig"]["RestartPolicy"]["Name"] == u"on-failure"
     assert inspect["HostConfig"]["RestartPolicy"]["MaximumRetryCount"] == 5
 
     assert inspect["Config"]["Cmd"] == command
-    assert inspect["HostConfig"]["Memory"] == memory
+    #assert inspect["HostConfig"]["Memory"] == memory
     assert "name1=value1" in inspect["Config"]["Env"]
-    delete_all(client, [con_vol, c])
+    delete_all(client, [c])
 
 
-def test_container_run_with_options_2(client, test_name,
-                                      socat_containers):
+def test_container_run_with_options_2(client, test_name):
 
     hosts = client.list_host(kind='docker', removed_null=True)
     assert len(hosts) >= 1
@@ -118,7 +106,7 @@ def test_container_run_with_options_2(client, test_name,
                                 imageUuid=TEST_IMAGE_UUID,
                                 requestedHostId=host.id,
                                 publishAllPorts=True,
-                                privileged=True,
+                                #privileged=True,
                                 stdinOpen=True,
                                 tty=True,
                                 )
@@ -127,8 +115,8 @@ def test_container_run_with_options_2(client, test_name,
     docker_client = get_docker_client(host)
     inspect = docker_client.inspect_container(c.externalId)
 
-    assert inspect["HostConfig"]["PublishAllPorts"]
-    assert inspect["HostConfig"]["Privileged"]
+    #assert inspect["HostConfig"]["PublishAllPorts"]
+    #assert inspect["HostConfig"]["Privileged"]
     assert inspect["Config"]["OpenStdin"]
     assert inspect["Config"]["Tty"]
 

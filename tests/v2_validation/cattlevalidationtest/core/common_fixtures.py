@@ -133,7 +133,7 @@ check_connectivity_by_wget = True
 cert_list = {}
 
 MANAGED_NETWORK = "transparent"
-UNMANAGED_NETWORK = "bridge"
+UNMANAGED_NETWORK = "nat"
 
 dns_labels = {"io.rancher.container.dns": "true",
               "io.rancher.scheduler.affinity:container_label_ne":
@@ -842,17 +842,14 @@ def create_socat_containers(client):
     time.sleep(10)
 
 
+
+
 def get_docker_client(host):
     ip = host.ipAddresses()[0].address
     port = '2375'
 
-    tls_config = docker.tls.TLSConfig(
-                    ca_cert=SSLCERT_SUBDIR + '/socat-crt.pem',
-                    client_cert=(SSLCERT_SUBDIR + '/socat-crt.pem',
-                                 SSLCERT_SUBDIR + '/socat-key.pem'))
-
     return docker.APIClient(base_url='tcp://' + ip + ":" + port,
-                            tls=tls_config, version='auto')
+                            version='auto')
 
 
 def wait_for_scale_to_adjust(admin_client, service, timeout=DEFAULT_TIMEOUT):
