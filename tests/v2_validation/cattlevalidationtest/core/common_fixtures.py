@@ -93,7 +93,7 @@ LB_HOST_ROUTING_IMAGE_UUID = "docker:kingsd/win-nodejs:5.0"
 SSH_IMAGE_UUID_HOSTNET = "docker:sangeetha/testclient33:latest"
 HOST_ACCESS_IMAGE_UUID = "docker:sangeetha/testclient44:latest"
 HEALTH_CHECK_IMAGE_UUID = "docker:sangeetha/testhealthcheck:v2"
-MULTIPLE_EXPOSED_PORT_UUID = "docker:sangeetha/testmultipleport:v1"
+MULTIPLE_EXPOSED_PORT_UUID = "docker:kingsd/win-testmultipleport:v0.14"
 MICROSERVICE_IMAGES = {"haproxy_image_uuid": None}
 
 DEFAULT_TIMEOUT = 45
@@ -1003,8 +1003,7 @@ def validate_exposed_port(client, service, public_port):
         con_host = con.hosts[0]
         for port in public_port:
             response = get_http_response(con_host, port, "/service.html")
-            assert response == con.externalId[:12]
-
+            assert response.lower() == con.externalId[:12]
 
 def validate_exposed_port_and_container_link(client, con, link_name,
                                              link_port, exposed_port):
@@ -1019,6 +1018,7 @@ def validate_exposed_port_and_container_link(client, con, link_name,
     host = con.hosts[0]
     docker_client = get_docker_client(host)
     inspect = docker_client.inspect_container(con.externalId)
+    
     response = inspect["Config"]["Env"]
     logger.info(response)
     address = None
@@ -1036,12 +1036,12 @@ def validate_exposed_port_and_container_link(client, con, link_name,
     logger.info(address)
     logger.info(port)
     assert address and port is not None
-
+    
     # Validate port mapping
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(host.ipAddresses()[0].address, username="root",
-                password="root", port=exposed_port)
+    ssh.connect(host.ipAddresses()[0].address, username="rancher",
+                password="WWW.163.com", port=exposed_port)
 
     # Validate link containers
     cmd = "wget -O result.txt  --timeout=20 --tries=1 http://" + \
@@ -2098,7 +2098,7 @@ def get_http_response(host, port, path):
     r = requests.get(url)
     time_taken = time.time() - start_time
     logger.info("time taken - " + str(time_taken))
-    response = r.text.strip("\n")
+    response = r.text.strip("\r\n")
     logger.info(response)
     assert r.status_code == 200
     r.close()

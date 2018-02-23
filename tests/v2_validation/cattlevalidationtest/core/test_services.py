@@ -7,8 +7,8 @@ TEST_SERVICE_OPT_IMAGE = 'kingsd/win-nodejs'
 TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':5.0'
 TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
 
-LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
-SSH_IMAGE_UUID = "docker:sangeetha/testclient:latest"
+LB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.3"
+SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.1"
 
 
 docker_config_running = [{"docker_param_name": "State.Running",
@@ -319,9 +319,8 @@ def test_services_docker_options_2(client):
 
 
 
-
-def test_services_port_and_link_options(client,
-                                        socat_containers):
+# Skip 2018-2-12
+def test_services_port_and_link_options(client):
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
 
@@ -336,17 +335,20 @@ def test_services_port_and_link_options(client,
         imageUuid=LB_IMAGE_UUID,
         environment={'CONTAINER_NAME': link_name},
         name=random_str(),
+        networkMode=MANAGED_NETWORK,
         requestedHostId=host.id
         )
 
     link_container = client.wait_success(link_container)
 
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                    "networkMode": MANAGED_NETWORK,
                      "ports": [str(exposed_port)+":22/tcp"],
+                     "stdinOpen": True,
                      "instanceLinks": {
                          link_name:
                              link_container.id},
-                     "requestedHostId": link_host.id,
+                     "requestedHostId": link_host.id
                      }
 
     service, env = create_env_and_svc(client, launch_config, 1)
@@ -374,6 +376,7 @@ def test_services_multiple_expose_port(client):
         port_mapping.append(str(public_port[i])+":" +
                             str(private_port[i]) + "/tcp")
     launch_config = {"imageUuid": MULTIPLE_EXPOSED_PORT_UUID,
+                     "networkMode": MANAGED_NETWORK,
                      "ports": port_mapping,
                      }
 
