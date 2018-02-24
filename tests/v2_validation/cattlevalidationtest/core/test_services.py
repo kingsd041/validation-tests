@@ -1567,6 +1567,8 @@ def test_services_rolling_strategy(client):
 def test_service_reconcile_on_stop_exposed_port(client):
     port = "45"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "stdinOpen": True,
+                     "tty": True,
                      "ports": [port+":22/tcp"]}
     service, env = create_env_and_svc(client, launch_config, scale=3)
     env = env.activateservices()
@@ -1579,6 +1581,8 @@ def test_service_reconcile_on_stop_exposed_port(client):
 def test_service_reconcile_on_restart_exposed_port(client):
     port = "46"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "stdinOpen": True,
+                     "tty": True,
                      "ports": [port+":22/tcp"]}
     service, env = create_env_and_svc(client, launch_config, scale=3)
     env = env.activateservices()
@@ -1591,6 +1595,8 @@ def test_service_reconcile_on_restart_exposed_port(client):
 def test_service_reconcile_on_delete_exposed_port(client):
     port = "47"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "stdinOpen": True,
+                     "tty": True,
                      "ports": [port+":22/tcp"]}
     service, env = create_env_and_svc(client, launch_config, scale=3)
     env = env.activateservices()
@@ -1599,7 +1605,8 @@ def test_service_reconcile_on_delete_exposed_port(client):
     check_for_service_reconciliation_on_delete(client, service)
     delete_all(client, [env])
 
-
+# Windows environment does not support LB
+'''
 def test_insvc_upgrade_start_first(client):
     service_scale = 1
     lb_scale = 1
@@ -1625,7 +1632,7 @@ def test_insvc_upgrade_start_first(client):
     time.sleep(10)
     assert service.state == "upgrading"
     validate_lb_service(client, lb_service, port, [service])
-
+'''
 
 @if_container_refactoring
 def test_global_service(client):
