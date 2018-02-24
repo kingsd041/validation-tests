@@ -96,7 +96,7 @@ HEALTH_CHECK_IMAGE_UUID = "docker:sangeetha/testhealthcheck:v2"
 MULTIPLE_EXPOSED_PORT_UUID = "docker:kingsd/win-testmultipleport:v0.14"
 MICROSERVICE_IMAGES = {"haproxy_image_uuid": None}
 
-DEFAULT_TIMEOUT = 45
+DEFAULT_TIMEOUT = 90
 DEFAULT_MACHINE_TIMEOUT = 900
 RANCHER_DNS_SERVER = "169.254.169.250"
 RANCHER_DNS_SEARCH = "rancher.internal"

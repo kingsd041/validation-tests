@@ -2,7 +2,6 @@ from common_fixtures import *  # NOQA
 from cattle import ApiError
 #from test_services_lb_balancer import create_environment_with_balancer_services
 
-
 TEST_SERVICE_OPT_IMAGE = 'kingsd/win-nodejs'
 TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':5.0'
 TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
@@ -77,7 +76,7 @@ def create_env_and_svc_activate_launch_config(
 
 def test_services_docker_options(client):
     '''
-    Because windows does not support valume,dns,cap, so commented out
+    #Because windows does not support valume,dns,cap, so commented out
     '''
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
@@ -393,6 +392,7 @@ def test_services_multiple_expose_port(client):
 def test_services_random_expose_port(client):
 
     launch_config = {"imageUuid": MULTIPLE_EXPOSED_PORT_UUID,
+                     "networkMode": MANAGED_NETWORK,
                      "ports": ["80/tcp", "81/tcp"]
                      }
     service, env = create_env_and_svc(client, launch_config, 3)
@@ -419,12 +419,14 @@ def test_services_random_expose_port_exhaustrange(
 
     # Set random port range to 6 ports and exhaust 5 of them by creating a
     # service that has 5 random ports exposed
+    #pdb.set_trace()
     project = admin_client.list_project(name=PROJECT_NAME)[0]
     project = admin_client.update(
         project, servicesPortRange={"startPort": 65500, "endPort": 65505})
     project = wait_success(client, project)
 
     launch_config = {"imageUuid": MULTIPLE_EXPOSED_PORT_UUID,
+                     "networkMode": MANAGED_NETWORK,
                      "ports":
                          ["80/tcp", "81/tcp", "82/tcp", "83/tcp", "84/tcp"]
                      }
@@ -453,6 +455,7 @@ def test_services_random_expose_port_exhaustrange(
     # Validate that the service gets created with no ports exposed
 
     launch_config = {"imageUuid": MULTIPLE_EXPOSED_PORT_UUID,
+                     "networkMode": MANAGED_NETWORK,
                      "ports":
                          ["80/tcp", "81/tcp"]
                      }
@@ -517,10 +520,10 @@ def test_services_random_expose_port_exhaustrange(
     delete_all(client, [env])
 
 
-def test_environment_activate_deactivate_delete(client,
-                                                socat_containers):
+def test_environment_activate_deactivate_delete(client):
 
-    launch_config = {"imageUuid": TEST_IMAGE_UUID}
+    launch_config = {"imageUuid": TEST_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK}
 
     scale = 1
 
@@ -578,10 +581,10 @@ def test_environment_activate_deactivate_delete(client,
     delete_all(client, [env])
 
 
-def test_service_activate_deactivate_delete(client,
-                                            socat_containers):
+def test_service_activate_deactivate_delete(client):
 
-    launch_config = {"imageUuid": TEST_IMAGE_UUID}
+    launch_config = {"imageUuid": TEST_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK}
 
     scale = 2
 
@@ -618,21 +621,21 @@ def test_service_activate_deactivate_delete(client,
 
 
 def test_service_activate_stop_instance(
-        client, socat_containers):
+        client):
 
     service = shared_env[0]["service"]
     check_for_service_reconciliation_on_stop(client, service)
 
 
 def test_service_activate_delete_instance(
-        client, socat_containers):
+        client):
 
     service = shared_env[0]["service"]
     check_for_service_reconciliation_on_delete(client, service)
 
 
 def test_service_activate_purge_instance(
-        client, socat_containers):
+        client):
 
     service = shared_env[0]["service"]
 
@@ -653,7 +656,7 @@ def test_service_activate_purge_instance(
 @pytest.mark.skipif(
     True, reason="Skip since there is no support for restore from v1.6.0")
 def test_service_activate_restore_instance(
-        client, socat_containers):
+        client):
 
     service = shared_env[0]["service"]
 
@@ -675,116 +678,115 @@ def test_service_activate_restore_instance(
     delete_all(client, [container1, container2])
 
 
-def test_service_scale_up(client, socat_containers):
-    check_service_scale(client, socat_containers, 2, 4)
+def test_service_scale_up(client):
+    check_service_scale(client, 2, 4)
 
 
-def test_service_scale_down(client, socat_containers):
-    check_service_scale(client, socat_containers, 4, 2, 2)
+def test_service_scale_down(client):
+    check_service_scale(client, 4, 2, 2)
 
 
 @if_ontag
 def test_service_activate_stop_instance_scale_up(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 3, 4, [1])
+        client, 3, 4, [1])
 
 
 def test_service_activate_delete_instance_scale_up(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(
-        client, socat_containers, 3, 4, [1])
+        client, 3, 4, [1])
 
 
 def test_service_activate_stop_instance_scale_down(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 4, 1, [1], 3)
+        client, 4, 1, [1], 3)
 
 
 def test_service_activate_delete_instance_scale_down(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(
-        client, socat_containers, 4, 1, [1], 3)
+        client, 4, 1, [1], 3)
 
 
 @if_ontag
 def test_service_activate_stop_instance_scale_up_1(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 3, 4, [3])
+        client, 3, 4, [3])
 
 
 def test_service_activate_delete_instance_scale_up_1(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(
-        client, socat_containers, 3, 4, [3])
+        client, 3, 4, [3])
 
 
 def test_service_activate_stop_instance_scale_down_1(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 4, 1, [4], 3)
+        client, 4, 1, [4], 3)
 
 
 def test_service_activate_delete_instance_scale_down_1(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(client,
-                                                 socat_containers,
                                                  4, 1, [4], 3)
 
 
 @if_ontag
 def test_service_activate_stop_instance_scale_up_2(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 3, 4, [1, 2, 3])
+        client, 3, 4, [1, 2, 3])
 
 
 def test_service_activate_delete_instance_scale_up_2(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(
-        client, socat_containers, 3, 4, [1, 2, 3])
+        client, 3, 4, [1, 2, 3])
 
 
 def test_service_activate_stop_instance_scale_down_2(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 4, 1, [1, 2, 3, 4], 3)
+        client, 4, 1, [1, 2, 3, 4], 3)
 
 
 def test_service_activate_delete_instance_scale_down_2(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(
-        client, socat_containers, 4, 1, [1, 2, 3, 4])
+        client, 4, 1, [1, 2, 3, 4])
 
 
 @if_ontag
 def test_service_activate_stop_instance_scale_up_3(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 3, 4, [2])
+        client, 3, 4, [2])
 
 
 def test_service_activate_delete_instance_scale_up_3(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(
-        client, socat_containers, 3, 4, [2])
+        client, 3, 4, [2])
 
 
 def test_service_activate_stop_instance_scale_down_3(
-        client, socat_containers):
+        client):
     check_service_activate_stop_instance_scale(
-        client, socat_containers, 4, 1, [2], 3)
+        client, 4, 1, [2], 3)
 
 
 def test_service_activate_delete_instance_scale_down_3(
-        client, socat_containers):
+        client):
     check_service_activate_delete_instance_scale(
-        client, socat_containers, 4, 1, [2], 3)
+        client, 4, 1, [2], 3)
 
 
-def test_services_hostname_override_1(client, socat_containers):
+def test_services_hostname_override_1(client):
 
     host_name = "test"
     domain_name = "abc.com"
@@ -820,7 +822,7 @@ def test_services_hostname_override_1(client, socat_containers):
     delete_all(client, [env])
 
 
-def test_services_hostname_override_2(client, socat_containers):
+def test_services_hostname_override_2(client):
 
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "labels":
@@ -851,7 +853,7 @@ def test_services_hostname_override_2(client, socat_containers):
 
 
 def test_service_reconcile_stop_instance_restart_policy_always(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "restartPolicy": {"name": "always"}}
@@ -862,7 +864,7 @@ def test_service_reconcile_stop_instance_restart_policy_always(
 
 
 def test_service_reconcile_delete_instance_restart_policy_always(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "restartPolicy": {"name": "always"}}
@@ -873,7 +875,7 @@ def test_service_reconcile_delete_instance_restart_policy_always(
 
 
 def test_service_reconcile_delete_instance_restart_policy_no(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "labels": {"io.rancher.container.start_once": True}
@@ -885,7 +887,7 @@ def test_service_reconcile_delete_instance_restart_policy_no(
 
 
 def test_service_reconcile_stop_instance_restart_policy_no(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "labels": {"io.rancher.container.start_once": True}}
@@ -915,7 +917,7 @@ def test_service_reconcile_stop_instance_restart_policy_no(
 
 
 def test_service_reconcile_stop_instance_restart_policy_failure(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "restartPolicy": {"name": "on-failure"}
@@ -927,7 +929,7 @@ def test_service_reconcile_stop_instance_restart_policy_failure(
 
 
 def test_service_reconcile_delete_instance_restart_policy_failure(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "restartPolicy": {"name": "on-failure"}
@@ -939,7 +941,7 @@ def test_service_reconcile_delete_instance_restart_policy_failure(
 
 
 def test_service_reconcile_stop_instance_restart_policy_failure_count(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "restartPolicy": {"maximumRetryCount": 5,
@@ -952,7 +954,7 @@ def test_service_reconcile_stop_instance_restart_policy_failure_count(
 
 
 def test_service_reconcile_delete_instance_restart_policy_failure_count(
-        client, socat_containers):
+        client):
     scale = 3
     launch_config = {"imageUuid": TEST_IMAGE_UUID,
                      "restartPolicy": {"maximumRetryCount": 5,
@@ -964,14 +966,17 @@ def test_service_reconcile_delete_instance_restart_policy_failure_count(
     delete_all(client, [env])
 
 
-def test_service_with_healthcheck(client, socat_containers):
+# Windows environment does not support health check temporarily
+
+'''
+def test_service_with_healthcheck(client):
     scale = 3
     env, service = service_with_healthcheck_enabled(
         client, scale)
     delete_all(client, [env])
 
 
-def test_service_with_healthcheck_none(client, socat_containers):
+def test_service_with_healthcheck_none(client):
     scale = 3
     env, service = service_with_healthcheck_enabled(
         client, scale, strategy="none")
@@ -979,7 +984,7 @@ def test_service_with_healthcheck_none(client, socat_containers):
 
 
 def test_service_with_healthcheck_recreate(
-        client, socat_containers):
+        client):
     scale = 10
     env, service = service_with_healthcheck_enabled(
         client, scale, strategy="recreate")
@@ -987,7 +992,7 @@ def test_service_with_healthcheck_recreate(
 
 
 def test_service_with_healthcheck_recreateOnQuorum(
-        client, socat_containers):
+        client):
     scale = 10
     env, service = service_with_healthcheck_enabled(
         client, scale, strategy="recreateOnQuorum", qcount=5)
@@ -995,7 +1000,7 @@ def test_service_with_healthcheck_recreateOnQuorum(
 
 
 def test_service_with_healthcheck_container_unhealthy(
-        client, socat_containers):
+        client):
     scale = 2
     port = 9998
 
@@ -1033,7 +1038,7 @@ def test_service_with_healthcheck_container_unhealthy(
 
 
 def test_service_with_healthcheck_container_unhealthy_retainip(
-        client, socat_containers):
+        client):
     scale = 2
     port = 799
 
@@ -1091,7 +1096,7 @@ def test_service_with_healthcheck_container_unhealthy_retainip(
 
 
 def test_service_with_healthcheck_none_container_unhealthy(
-        client, socat_containers):
+        client):
     scale = 3
     port = 800
 
@@ -1136,7 +1141,7 @@ def test_service_with_healthcheck_none_container_unhealthy(
 
 
 def test_service_with_healthcheck_none_container_unhealthy_delete(
-        client, socat_containers):
+        client):
     scale = 3
     port = 801
 
@@ -1191,7 +1196,7 @@ def test_service_with_healthcheck_none_container_unhealthy_delete(
 
 
 def test_service_with_healthcheck_quorum_containers_unhealthy_1(
-        client, socat_containers):
+        client):
     scale = 2
     port = 802
 
@@ -1233,7 +1238,7 @@ def test_service_with_healthcheck_quorum_containers_unhealthy_1(
 
 @pytest.mark.skipif(True, reason="Known issue - #5411")
 def test_service_with_healthcheck_quorum_container_unhealthy_2(
-        client, socat_containers):
+        client):
     scale = 3
     port = 803
 
@@ -1271,7 +1276,7 @@ def test_service_with_healthcheck_quorum_container_unhealthy_2(
 
 
 def test_dns_service_with_healthcheck_none_container_unhealthy(
-        client, socat_containers):
+        client):
 
     scale = 3
     port = 804
@@ -1342,7 +1347,7 @@ def test_dns_service_with_healthcheck_none_container_unhealthy(
     delete_all(client, [env])
 
 
-def test_service_health_check_scale_up(client, socat_containers):
+def test_service_health_check_scale_up(client):
 
     scale = 1
     final_scale = 3
@@ -1359,7 +1364,7 @@ def test_service_health_check_scale_up(client, socat_containers):
 
 
 def test_service_health_check_reconcile_on_stop(
-        client, socat_containers):
+        client):
     scale = 3
     env, service = service_with_healthcheck_enabled(
         client, scale)
@@ -1369,7 +1374,7 @@ def test_service_health_check_reconcile_on_stop(
 
 
 def test_service_health_check_reconcile_on_delete(
-        client, socat_containers):
+        client):
     scale = 3
     env, service = service_with_healthcheck_enabled(
         client, scale)
@@ -1379,7 +1384,7 @@ def test_service_health_check_reconcile_on_delete(
 
 
 def test_service_health_check_with_tcp(
-        client, socat_containers):
+        client):
     scale = 3
     env, service = service_with_healthcheck_enabled(
         client, scale, protocol="tcp")
@@ -1387,7 +1392,7 @@ def test_service_health_check_with_tcp(
 
 
 def test_service_with_healthcheck_container_tcp_unhealthy(
-        client, socat_containers):
+        client):
     scale = 2
     port = 9997
 
@@ -1431,7 +1436,7 @@ def test_service_with_healthcheck_container_tcp_unhealthy(
             lambda x: x.healthState == 'healthy',
             lambda x: 'State is: ' + x.healthState)
     delete_all(client, [env])
-
+'''
 
 @pytest.mark.skipif(True,
                     reason='Service names not editable from 1.6 release')
@@ -1488,6 +1493,9 @@ def test_service_name_unique_edit(client):
     delete_all(client, [env])
 
 
+# Windows environment does not support retain ip
+
+'''
 def test_service_retain_ip(client):
     launch_config = {"imageUuid": SSH_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config, 3, retainIp=True)
@@ -1518,11 +1526,13 @@ def test_service_retain_ip(client):
 
     assert ipAddress == new_ipAddress
     assert externalId != new_externalId
+'''
 
-
-def test_services_rolling_strategy(client,
-                                   socat_containers):
+def test_services_rolling_strategy(client):
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "stdinOpen": True,
+                     "tty": True,
                      }
     service, env = create_env_and_svc(client, launch_config, 5)
 
@@ -1539,7 +1549,7 @@ def test_services_rolling_strategy(client,
                               "intervalMillis": 1000
                               }
     service = client.wait_success(service.restart(
-        rollingRestartStrategy=rollingrestartstrategy))
+        rollingRestartStrategy=rollingrestartstrategy), timeout=200)
 
     assert service.state == "active"
     check_container_in_service(client, service)
@@ -1554,8 +1564,7 @@ def test_services_rolling_strategy(client,
     delete_all(client, [env])
 
 
-def test_service_reconcile_on_stop_exposed_port(client,
-                                                socat_containers):
+def test_service_reconcile_on_stop_exposed_port(client):
     port = "45"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
                      "ports": [port+":22/tcp"]}
@@ -1567,8 +1576,7 @@ def test_service_reconcile_on_stop_exposed_port(client,
     delete_all(client, [env])
 
 
-def test_service_reconcile_on_restart_exposed_port(client,
-                                                   socat_containers):
+def test_service_reconcile_on_restart_exposed_port(client):
     port = "46"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
                      "ports": [port+":22/tcp"]}
@@ -1580,8 +1588,7 @@ def test_service_reconcile_on_restart_exposed_port(client,
     delete_all(client, [env])
 
 
-def test_service_reconcile_on_delete_exposed_port(client,
-                                                  socat_containers):
+def test_service_reconcile_on_delete_exposed_port(client):
     port = "47"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
                      "ports": [port+":22/tcp"]}
@@ -1593,7 +1600,7 @@ def test_service_reconcile_on_delete_exposed_port(client,
     delete_all(client, [env])
 
 
-def test_insvc_upgrade_start_first(client, socat_containers):
+def test_insvc_upgrade_start_first(client):
     service_scale = 1
     lb_scale = 1
     port = "7890"
@@ -1632,7 +1639,7 @@ def test_global_service(client):
     delete_all(client, [env])
 
 
-def check_service_scale(client, socat_containers,
+def check_service_scale(client,
                         initial_scale, final_scale,
                         removed_instance_count=0):
 
@@ -1666,7 +1673,6 @@ def check_service_scale(client, socat_containers,
 
 
 def check_service_activate_stop_instance_scale(client,
-                                               socat_containers,
                                                initial_scale, final_scale,
                                                stop_instance_index,
                                                removed_instance_count=0):
@@ -1713,7 +1719,6 @@ def check_service_activate_stop_instance_scale(client,
 
 
 def check_service_activate_delete_instance_scale(client,
-                                                 socat_containers,
                                                  initial_scale, final_scale,
                                                  delete_instance_index,
                                                  removed_instance_count=0):
