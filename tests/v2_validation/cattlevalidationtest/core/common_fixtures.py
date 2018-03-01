@@ -85,10 +85,10 @@ if_ontag = pytest.mark.skipif(
     ONTAG_RUNS == "True",
     reason='Skipped for onTag runs')
 
-WEB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
+WEB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.4"
 WEB_SSL_IMAGE1_UUID = "docker:sangeetha/ssllbtarget1:latest"
 WEB_SSL_IMAGE2_UUID = "docker:sangeetha/ssllbtarget2:latest"
-SSH_IMAGE_UUID = "docker:sangeetha/testclient:latest"
+SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.11"
 LB_HOST_ROUTING_IMAGE_UUID = "docker:kingsd/win-nodejs:5.0"
 SSH_IMAGE_UUID_HOSTNET = "docker:sangeetha/testclient33:latest"
 HOST_ACCESS_IMAGE_UUID = "docker:sangeetha/testclient44:latest"
@@ -1286,14 +1286,14 @@ def validate_linked_service(admin_client, service, consumed_services,
             # Validate port mapping
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(host.ipAddresses()[0].address, username="root",
-                        password="root", port=int(exposed_port))
+            ssh.connect(host.ipAddresses()[0].address, username="rancher",
+                        password="WWW.163.com", port=int(exposed_port))
 
             if linkName is None:
                 linkName = consumed_service.name
             # Validate link containers
-            cmd = "wget -O result.txt --timeout=20 --tries=1 http://" + \
-                  linkName + ":80/name.html;cat result.txt"
+            cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
+                  linkName + ":80/name.html -OutFile result.txt;cat result.txt"
             logger.info(cmd)
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
@@ -1302,12 +1302,13 @@ def validate_linked_service(admin_client, service, consumed_services,
                 assert len(response) == 0
             else:
                 assert len(response) == 1
-                resp = response[0].strip("\n")
+                resp = response[0].strip("\r\n")
                 logger.info("Actual wget Response" + str(resp))
-                assert resp in (expected_link_response)
+                assert resp.lower() in (expected_link_response)
 
             # Validate DNS resolution using dig
-            cmd = "dig " + linkName + " +short"
+            cmd = "powershell -Command Resolve-DnsName " + linkName + \
+                  " | Select IP4Address | Format-Wide -Column 1"
             logger.info(cmd)
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
@@ -1322,11 +1323,12 @@ def validate_linked_service(admin_client, service, consumed_services,
 
             if exclude_instance is not None:
                 expected_entries_dig = expected_entries_dig - 1
+            response_transcript = response[:]
+            [response_transcript.remove(res) for res in response if res == '\r\n']
+            assert len(response_transcript) == expected_entries_dig
 
-            assert len(response) == expected_entries_dig
-
-            for resp in response:
-                dns_response.append(resp.strip("\n"))
+            for resp in response_transcript:
+                dns_response.append(resp.strip("\r\n| "))
 
             for address in expected_dns_list:
                 assert address in dns_response
@@ -1799,9 +1801,14 @@ def create_env_with_ext_svc_and_lb(client, scale_lb, port):
 def create_env_with_2_svc(client, scale_svc, scale_consumed_svc, port):
 
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "stdinOpen": True,
+                         "networkMode": MANAGED_NETWORK,
+                         "tty": True,
                          "ports": [port+":22/tcp"]}
 
-    launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK                    
+                         }
 
     # Create Environment
     env = create_env(client)
@@ -1990,7 +1997,7 @@ def create_svc(client, env, launch_config, scale=None, retainIp=False):
     return service
 
 
-def wait_until_instances_get_stopped(client, service, timeout=60):
+def wait_until_instances_get_stopped(client, service, timeout=300):
     stopped_count = 0
     start = time.time()
     while stopped_count != service.scale:
@@ -2569,7 +2576,10 @@ def create_env_with_2_svc_hostnetwork(
         isnetworkModeHost_svc=False,
         isnetworkModeHost_consumed_svc=False):
 
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID_HOSTNET}
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "stdinOpen": True,
+                         "tty": True}
     launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID}
 
     if isnetworkModeHost_svc:

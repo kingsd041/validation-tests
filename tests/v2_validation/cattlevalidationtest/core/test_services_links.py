@@ -1,5 +1,4 @@
 from common_fixtures import *  # NOQA
-
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +23,7 @@ def create_environment_with_linked_services(
         serviceLinks=[{"serviceId": consumed_service.id, "name": linkName}])
     service = client.wait_success(service, 120)
 
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 240)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -265,8 +264,7 @@ def test_link_consumed_services_scale_down(client):
     delete_all(client, [env])
 
 
-def test_link_consumed_services_stop_start_instance(client,
-                                                    socat_containers):
+def test_link_consumed_services_stop_start_instance(client):
 
     port = "311"
 
@@ -449,12 +447,12 @@ def test_link_add_remove_servicelinks(client):
 
     env, service, consumed_service = create_environment_with_linked_services(
         client, service_scale, consumed_service_scale, port)
-
     validate_linked_service(client, service, [consumed_service], port,
                             linkName="mylink")
 
     # Add another service to environment
-    launch_config = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK}
 
     random_name = random_str()
     consumed_service_name = random_name.replace("-", "")
@@ -475,7 +473,6 @@ def test_link_add_remove_servicelinks(client):
                       {"serviceId": consumed_service1.id, "name": "mylink2"}])
     validate_add_service_link(client, service, consumed_service)
     validate_add_service_link(client, service, consumed_service1)
-
     validate_linked_service(client, service,
                             [consumed_service], port,
                             linkName="mylink")
@@ -515,6 +512,9 @@ def test_link_services_delete_service_add_service(client):
 
     # Add another service and link to consumed service
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "stdinOpen": True,
+                     "tty": True,
                      "ports": [port1+":22/tcp"]}
 
     random_name = random_str()
@@ -527,7 +527,7 @@ def test_link_services_delete_service_add_service(client):
     assert service1.state == "inactive"
 
     service1 = service1.activate()
-    service1 = client.wait_success(service1, 120)
+    service1 = client.wait_success(service1, 240)
     assert service1.state == "active"
 
     service1.setservicelinks(
@@ -562,7 +562,8 @@ def test_link_services_delete_and_add_consumed_service(client):
     # Add another consume service and link the service to this newly created
     # service
 
-    launch_config = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK}
 
     random_name = random_str()
     service_name = random_name.replace("-", "")
@@ -588,8 +589,7 @@ def test_link_services_delete_and_add_consumed_service(client):
     delete_all(client, [env])
 
 
-def test_link_services_stop_start_instance(client,
-                                           socat_containers):
+def test_link_services_stop_start_instance(client):
 
     port = "320"
 
@@ -676,13 +676,16 @@ def test_link_services_delete_instance(client):
     delete_all(client, [env])
 
 
+# Windows does not support the host network.
+
+"""
 def test_links_with_hostnetwork_1(client):
 
     port = "323"
 
     service_scale = 1
     consumed_service_scale = 2
-    ssh_port = "33"
+    ssh_port = "22"
     env, service, consumed_service = create_environment_with_linked_services(
         client, service_scale, consumed_service_scale, port,
         ssh_port, isnetworkModeHost_svc=False,
@@ -691,7 +694,6 @@ def test_links_with_hostnetwork_1(client):
                             linkName="mylink")
     delete_all(client, [env])
 
-"""
 
 def test_links_with_hostnetwork_2(client):
 
