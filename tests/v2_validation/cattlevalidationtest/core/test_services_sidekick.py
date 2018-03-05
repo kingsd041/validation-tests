@@ -1,7 +1,8 @@
 from common_fixtures import *  # NOQA
 
-WEB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
-SSH_IMAGE_UUID = "docker:sangeetha/testclient:latest"
+
+WEB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.4"
+SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.11"
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +43,15 @@ def env_with_sidekick_config(client, service_scale,
 
 def create_env_with_sidekick(client, service_scale, expose_port, env=None):
     launch_config_consumed_service = {
-        "imageUuid": WEB_IMAGE_UUID}
+        "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK}
 
     # Adding service anti-affinity rule to workaround bug-1419
     launch_config_service = {
         "imageUuid": SSH_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK,
+        "stdinOpen": True,
+        "tty": True,
         "ports": [expose_port+":22/tcp"],
         "labels": {
             'io.rancher.scheduler.affinity:container_label_ne':
@@ -64,10 +69,12 @@ def create_env_with_sidekick(client, service_scale, expose_port, env=None):
 
 def create_env_with_sidekick_for_linking(client, service_scale, env=None):
     launch_config_consumed_service = {
-        "imageUuid": WEB_IMAGE_UUID}
+        "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK}
 
     launch_config_service = {
-        "imageUuid": WEB_IMAGE_UUID}
+        "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK}
 
     env, service, service_name, consumed_service_name = \
         env_with_sidekick_config(client, service_scale,
@@ -79,10 +86,14 @@ def create_env_with_sidekick_for_linking(client, service_scale, env=None):
 
 def create_env_with_sidekick_anti_affinity(client, service_scale):
     launch_config_consumed_service = {
-        "imageUuid": WEB_IMAGE_UUID}
+        "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK}
 
     launch_config_service = {
         "imageUuid": SSH_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK,
+        "stdinOpen": True,
+        "tty": True,
         "labels": {
             'io.rancher.scheduler.affinity:container_label_ne':
                 "io.rancher.stack_service.name" +
@@ -102,10 +113,12 @@ def create_env_with_exposed_port_on_secondary(client, service_scale,
                                               expose_port):
     launch_config_consumed_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK,
         "ports": [expose_port+":80/tcp"]}
 
     launch_config_service = {
-        "imageUuid": WEB_IMAGE_UUID}
+        "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK}
 
     env, service, service_name, consumed_service_name = \
         env_with_sidekick_config(client, service_scale,
@@ -119,10 +132,14 @@ def create_env_with_exposed_ports_on_primary_and_secondary(
         client, service_scale, expose_port_pri, expose_port_sec):
     launch_config_consumed_service = {
         "imageUuid": SSH_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK,
+        "stdinOpen": True,
+        "tty": True,
         "ports": [expose_port_pri+":22/tcp"]}
 
     launch_config_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK,
         "ports": [expose_port_sec+":22/tcp"]}
 
     env, service, service_name, consumed_service_name = \
@@ -136,13 +153,18 @@ def create_env_with_exposed_ports_on_primary_and_secondary(
 def create_env_with_multiple_sidekicks(client, service_scale, expose_port):
 
     launch_config_consumed_service1 = {
-        "imageUuid": WEB_IMAGE_UUID}
+        "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK}
 
     launch_config_consumed_service2 = {
-        "imageUuid": WEB_IMAGE_UUID}
+        "imageUuid": WEB_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK}
 
     launch_config_service = {
         "imageUuid": SSH_IMAGE_UUID,
+        "networkMode": MANAGED_NETWORK,
+        "stdinOpen": True,
+        "tty": True,
         "ports": [expose_port+":22/tcp"],
         "labels": {
             'io.rancher.scheduler.affinity:container_label_ne':
@@ -197,7 +219,7 @@ def env_with_sidekick(client, service_scale, exposed_port):
     env = client.wait_success(env, 120)
     assert env.state == "active"
 
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 240)
     assert service.state == "active"
 
     dnsname = service.secondaryLaunchConfigs[0].name
@@ -254,7 +276,8 @@ def test_multiple_sidekick_activate_service(client):
 
     delete_all(client, [env])
 
-
+# WINDOWS environment does not support LB
+'''
 def test_sidekick_for_lb(client, socat_containers):
     service_scale = 2
     port = "7080"
@@ -325,14 +348,14 @@ def test_sidekick_for_lb(client, socat_containers):
                                   container_names)
 
     delete_all(client, [env])
-
+'''
 
 def test_sidekick(client):
     service_scale = 2
     env, service, service_name, consumed_service_name = \
         create_env_with_sidekick_for_linking(client, service_scale)
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 240)
     assert service.state == "active"
 
     validate_sidekick(client, service, service_name,
@@ -362,13 +385,16 @@ def test_service_links_to_sidekick(client):
 
     client_port = "7004"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "stdinOpen": True,
+                     "tty": True,
                      "ports": [client_port+":22/tcp"]}
 
     service = create_svc(client, env, launch_config, 1)
     link_svc(client, service, [linked_service])
 
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 240)
     assert service.state == "active"
 
     service_containers = get_service_container_list(client, service)
@@ -433,8 +459,7 @@ def test_sidekick_scale_down(client):
     delete_all(client, [env])
 
 
-def test_sidekick_consumed_services_stop_start_instance(client,
-                                                        socat_containers):
+def test_sidekick_consumed_services_stop_start_instance(client):
 
     service_scale = 2
     exposed_port = "7007"
@@ -540,7 +565,7 @@ def test_sidekick_deactivate_activate_environment(client):
     delete_all(client, [env])
 
 
-def test_sidekick_services_stop_start_instance(client, socat_containers):
+def test_sidekick_services_stop_start_instance(client):
 
     service_scale = 2
     exposed_port = "7011"
@@ -646,6 +671,8 @@ def test_sidekick_services_deactivate_activate(client):
     delete_all(client, [env])
 
 
+# WINDOWS environment does not support LB
+'''
 def test_sidekick_lbactivation_after_linking(client, socat_containers):
     service_scale = 2
     port = "7091"
@@ -707,7 +734,7 @@ def test_sidekick_lbactivation_after_linking(client, socat_containers):
     validate_lb_service_con_names(client, lb_service, port,
                                   container_names)
     delete_all(client, [env])
-
+'''
 
 def validate_sidekick(client, primary_service, service_name,
                       consumed_service_name, exposed_port=None, dnsname=None):
@@ -767,32 +794,36 @@ def validate_dns(client, service_containers, consumed_service,
         # Validate port mapping
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host.ipAddresses()[0].address, username="root",
-                    password="root", port=int(exposed_port))
-
+        ssh.connect(host.ipAddresses()[0].address, username="rancher",
+                    password="WWW.163.com", port=int(exposed_port))
+        
         # Validate link containers
-        cmd = "wget -O result.txt --timeout=20 --tries=1 http://" + dnsname + \
-              ":80/name.html;cat result.txt"
+        cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
+                  dnsname + ":80/name.html -OutFile result.txt;cat result.txt"
         print cmd
         stdin, stdout, stderr = ssh.exec_command(cmd)
-
+        
         response = stdout.readlines()
         assert len(response) == 1
-        resp = response[0].strip("\n")
+        resp = response[0].strip("\r\n")
         print "Actual wget Response" + str(resp)
-        assert resp in (expected_link_response)
+        assert resp.lower() in (expected_link_response)
 
         # Validate DNS resolution using dig
-        cmd = "dig " + dnsname + " +short"
+        cmd = "powershell -Command Resolve-DnsName " + dnsname + \
+                  " | Select IP4Address | Format-Wide -Column 1"
         print cmd
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
-        print "Actual dig Response" + str(response)
-        assert len(response) == len(expected_dns_list)
+        response_transcript = response[:]
+        [response_transcript.remove(res) for res in response if res == '\r\n']
+        print "Actual dig Response" + str(response_transcript)
+        assert len(response_transcript) == len(expected_dns_list)
 
-        for resp in response:
-            dns_response.append(resp.strip("\n"))
+        for resp in response_transcript:
+            dns_response.append(resp.strip("\r\n| "))
 
         for address in expected_dns_list:
             assert address in dns_response
+
