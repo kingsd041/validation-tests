@@ -1,5 +1,6 @@
 from common_fixtures import *  # NOQA
 
+isolation = "default"
 shared_services = []
 
 
@@ -12,12 +13,14 @@ def create_services_for_selectors(request, client):
     env = create_env(client)
     for label in labels:
         launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
                          "labels": label}
         service = client.create_service(name=random_str(),
                                         stackId=env.id,
                                         launchConfig=launch_config,
                                         scale=2)
-        service = client.wait_success(service, 60)
+        service = client.wait_success(service, 120)
         shared_services.append(service)
 
     def fin():
@@ -26,7 +29,9 @@ def create_services_for_selectors(request, client):
 
 
 def env_with_service_selectorContainer(client, label):
-    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation}
 
     # Create Environment
     env = create_env(client)
@@ -49,6 +54,7 @@ def env_with_service_selectorContainer(client, label):
     c = client.create_container(name=random_str(),
                                 networkMode=MANAGED_NETWORK,
                                 imageUuid=WEB_IMAGE_UUID,
+                                isolation=isolation,
                                 labels={label["name"]: label["value"]}
                                 )
     c = client.wait_success(c)
@@ -84,8 +90,14 @@ def test_selectorLink(client):
     port = "4000"
 
     launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation,
                      "labels": {"test1": "bar"}}
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,
                          "ports": [port+":22/tcp"]}
 
     env, service = create_env_with_svc_options(client, launch_config_svc,
@@ -104,7 +116,8 @@ def test_selectorLink(client):
     validate_linked_service(client, service, [linked_service], port)
     delete_all(client, [env])
 
-
+# WINDOWS environment does not support LB
+'''
 def test_selectorLink_lbservice(client, socat_containers):
     port = "4001"
 
@@ -165,7 +178,7 @@ def test_selectorLink_lbservice(client, socat_containers):
 
     lb_service = client.update(lb_service,
                                lbConfig=create_lb_config(port_rules))
-    lb_service = client.wait_success(lb_service, 120)
+    lb_service = client.wait_success(lb_service, 300)
 
     wait_for_lb_service_to_become_active(client,
                                          [linked_service1, linked_service2],
@@ -173,15 +186,21 @@ def test_selectorLink_lbservice(client, socat_containers):
     validate_lb_service(client, lb_service, port,
                         [linked_service1, linked_service2])
     delete_all(client, [env])
-
+'''
 
 def test_selectorLink_dnsservice(client):
     port = "4002"
 
     launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation,
                      "labels": {"test3": "bar"}}
 
     client_launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                                "networkMode": MANAGED_NETWORK,
+                                "isolation": isolation,
+                                "stdinOpen": True,
+                                "tty": True,
                                 "ports": [port+":22/tcp"]}
     env = create_env(client)
     dns = client.create_dnsService(
@@ -230,13 +249,19 @@ def test_selectorLink_dnsservice(client):
     delete_all(client, [env])
 
 
-def test__selectorLink_tolinkto_dnsservice(client):
+def test_selectorLink_tolinkto_dnsservice(client):
     port = "4003"
 
     launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation,
                      "labels": {"test5": "bar"}}
 
     client_launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                                "networkMode": MANAGED_NETWORK,
+                                "isolation": isolation,
+                                "stdinOpen": True,
+                                "tty": True,
                                 "ports": [port+":22/tcp"],
                                 "labels": {"dns": "mydns"}}
 
@@ -303,6 +328,10 @@ def test_selectorContainer_service_link(client):
         client, labels)
 
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,
                          "ports": [port+":22/tcp"]}
 
     # Create Service
@@ -318,9 +347,9 @@ def test_selectorContainer_service_link(client):
 
     service.activate()
     service.addservicelink(serviceLink={"serviceId": consumed_service.id})
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 240)
 
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 240)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -337,9 +366,15 @@ def test_selectorContainer_dns(client):
 
     port = "4010"
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,
                          "ports": [port+":22/tcp"]}
 
-    launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID,
+                                  "networkMode": MANAGED_NETWORK,
+                                  "isolation": isolation}
 
     # Create Environment for dns service and client service
     env = create_env(client)
@@ -347,6 +382,7 @@ def test_selectorContainer_dns(client):
     c1 = client.create_container(name=random_str(),
                                  networkMode=MANAGED_NETWORK,
                                  imageUuid=WEB_IMAGE_UUID,
+                                 isolation=isolation,
                                  labels={"dns1": "value1"}
                                  )
     c1 = client.wait_success(c1)
@@ -354,6 +390,7 @@ def test_selectorContainer_dns(client):
     c2 = client.create_container(name=random_str(),
                                  networkMode=MANAGED_NETWORK,
                                  imageUuid=WEB_IMAGE_UUID,
+                                 isolation=isolation,
                                  labels={"dns2": "value2"}
                                  )
     c2 = client.wait_success(c2)
@@ -402,10 +439,10 @@ def test_selectorContainer_dns(client):
     dns.addservicelink(serviceLink={"serviceId": consumed_service.id})
     dns.addservicelink(serviceLink={"serviceId": consumed_service1.id})
 
-    service = client.wait_success(service, 120)
-    consumed_service = client.wait_success(consumed_service, 120)
-    consumed_service1 = client.wait_success(consumed_service1, 120)
-    dns = client.wait_success(dns, 120)
+    service = client.wait_success(service, 240)
+    consumed_service = client.wait_success(consumed_service, 240)
+    consumed_service1 = client.wait_success(consumed_service1, 240)
+    dns = client.wait_success(dns, 240)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -418,14 +455,17 @@ def test_selectorContainer_dns(client):
         dns.name,  unmanaged_cons=unmanaged_con)
     delete_all(client, [env, c1, c2])
 
-
+# WINDOWS environment does not support LB
+'''
 def test_selectorContainer_lb(client, socat_containers):
     port = "9011"
 
     service_scale = 2
     lb_scale = 1
 
-    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID,
+                        "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation}
 
     launch_config_lb = {"imageUuid": get_haproxy_image(),
                         "ports": port}
@@ -491,9 +531,9 @@ def test_selectorContainer_lb(client, socat_containers):
     service2.activate()
     lb_service.activate()
 
-    service1 = client.wait_success(service1, 180)
-    service2 = client.wait_success(service2, 180)
-    lb_service = client.wait_success(lb_service, 180)
+    service1 = client.wait_success(service1, 300)
+    service2 = client.wait_success(service2, 300)
+    lb_service = client.wait_success(lb_service, 300)
 
     assert service1.state == "active"
     assert service2.state == "active"
@@ -516,7 +556,7 @@ def test_selectorContainer_lb(client, socat_containers):
 
     lb_service = client.update(lb_service,
                                lbConfig=create_lb_config(port_rules))
-    lb_service = client.wait_success(lb_service, 120)
+    lb_service = client.wait_success(lb_service, 240)
 
     unmanaged_con = {}
     unmanaged_con[service1.id] = [c1.externalId[:12]]
@@ -588,9 +628,9 @@ def test_selectorContainer_no_image_with_lb(
     service2.activate()
     lb_service.activate()
 
-    service1 = client.wait_success(service1, 180)
-    service2 = client.wait_success(service2, 180)
-    lb_service = client.wait_success(lb_service, 180)
+    service1 = client.wait_success(service1, 300)
+    service2 = client.wait_success(service2, 300)
+    lb_service = client.wait_success(lb_service, 300)
 
     assert service1.state == "active"
     assert service2.state == "active"
@@ -615,7 +655,7 @@ def test_selectorContainer_no_image_with_lb(
 
     lb_service = client.update(lb_service,
                                lbConfig=create_lb_config(port_rules))
-    lb_service = client.wait_success(lb_service, 120)
+    lb_service = client.wait_success(lb_service, 240)
 
     wait_for_lb_service_to_become_active(client,
                                          [service1, service2], lb_service)
@@ -627,7 +667,7 @@ def test_selectorContainer_no_image_with_lb(
                                      scale=1)
     service3 = client.wait_success(service3)
     assert service3.state == "inactive"
-    service3 = client.wait_success(service3.activate(), 60)
+    service3 = client.wait_success(service3.activate(), 120)
 
     service4 = client.create_service(name=random_str(),
                                      stackId=env.id,
@@ -636,7 +676,7 @@ def test_selectorContainer_no_image_with_lb(
                                      scale=1)
     service4 = client.wait_success(service4)
     assert service4.state == "inactive"
-    service4 = client.wait_success(service4.activate(), 60)
+    service4 = client.wait_success(service4.activate(), 120)
 
     unmanaged_con = {}
     unmanaged_con[service1.id] = get_container_names_list(
@@ -649,10 +689,10 @@ def test_selectorContainer_no_image_with_lb(
     validate_lb_service(client, lb_service, port,
                         [service1, service2], unmanaged_cons=unmanaged_con)
     delete_all(client, [env])
-
+'''
 
 def test_selectorContainer_for_service_reconciliation_on_stop(
-        client, socat_containers):
+        client):
 
     labels = {}
     labels["name"] = "testc2"
@@ -684,7 +724,7 @@ def test_selectorContainer_for_service_reconciliation_on_stop(
 
 
 def test_selectorContainer_for_service_reconciliation_on_delete(
-        client, socat_containers):
+        client):
     labels = {}
     labels["name"] = "testc3"
     labels["value"] = "bar"
@@ -708,7 +748,7 @@ def test_selectorContainer_for_service_reconciliation_on_delete(
 
 
 def test_selectorContainer_for_container_stop(
-        client, socat_containers):
+        client):
     labels = {}
     labels["name"] = "testc4"
     labels["value"] = "bar"
@@ -729,8 +769,7 @@ def test_selectorContainer_for_container_stop(
     delete_all(client, [env, c])
 
 
-def test_selectorContainer_for_container_delete(client,
-                                                socat_containers):
+def test_selectorContainer_for_container_delete(client):
     labels = {}
     labels["name"] = "testc5"
     labels["value"] = "bar"
@@ -752,8 +791,7 @@ def test_selectorContainer_for_container_delete(client,
 
 @pytest.mark.skipif(
     True, reason="Skip since there is no support for restore from v1.6.0")
-def test_selectorContainer_for_container_restore(client,
-                                                 socat_containers):
+def test_selectorContainer_for_container_restore(client):
     labels = {}
     labels["name"] = "testc6"
     labels["value"] = "bar"
@@ -776,7 +814,7 @@ def test_selectorContainer_for_container_restore(client,
     delete_all(client, [env, c])
 
 
-def test_selectorContainer_scale_up(client, socat_containers):
+def test_selectorContainer_scale_up(client):
 
     labels = {}
     labels["name"] = "testc7"
@@ -800,7 +838,7 @@ def test_selectorContainer_scale_up(client, socat_containers):
     delete_all(client, [env, c])
 
 
-def test_selectorContainer_scale_down(client, socat_containers):
+def test_selectorContainer_scale_down(client):
     labels = {}
     labels["name"] = "testc8"
     labels["value"] = "bar"
@@ -823,8 +861,7 @@ def test_selectorContainer_scale_down(client, socat_containers):
     delete_all(client, [env, c])
 
 
-def test_selectorContainer_deactivate_activate(
-        client, socat_containers):
+def test_selectorContainer_deactivate_activate(client):
     labels = {}
     labels["name"] = "testc9"
     labels["value"] = "bar"
@@ -851,7 +888,11 @@ def test_selectorContainer_deactivate_activate(
 
 
 def test_selectorLink_in(client):
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,}
 
     env, service = \
         create_env_with_svc_options(
@@ -863,7 +904,11 @@ def test_selectorLink_in(client):
 
 
 def test_selectorLink_notin(client):
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,}
 
     env, service = \
         create_env_with_svc_options(
@@ -874,7 +919,11 @@ def test_selectorLink_notin(client):
 
 
 def test_selectorLink_noteq(client):
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,}
 
     env, service = \
         create_env_with_svc_options(
@@ -886,7 +935,11 @@ def test_selectorLink_noteq(client):
 
 
 def test_selectorLink_name_no_value(client):
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,}
 
     env, service = \
         create_env_with_svc_options(
@@ -899,7 +952,11 @@ def test_selectorLink_name_no_value(client):
 
 
 def test_selectorLink_multiple(client):
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True,}
 
     env, service = \
         create_env_with_svc_options(
@@ -936,6 +993,7 @@ def test_service_with_no_image(client):
     c = client.create_container(name=random_str(),
                                 networkMode=MANAGED_NETWORK,
                                 imageUuid=WEB_IMAGE_UUID,
+                                isolation=isolation,
                                 labels={"test": "none"}
                                 )
     c = client.wait_success(c)

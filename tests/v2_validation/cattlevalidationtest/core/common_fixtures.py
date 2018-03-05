@@ -1400,32 +1400,35 @@ def validate_dns_service(admin_client, service, consumed_services,
         # Validate port mapping
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host.ipAddresses()[0].address, username="root",
-                    password="root", port=int(exposed_port))
+        ssh.connect(host.ipAddresses()[0].address, username="rancher",
+                    password="WWW.163.com", port=int(exposed_port))
 
         # Validate link containers
-        cmd = "wget -O result.txt --timeout=20 --tries=1 http://" + dnsname + \
-              ":80/name.html;cat result.txt"
+        cmd = "powershell -Command Invoke-WebRequest -uri  http://" + dnsname + \
+              ":80/name.html -OutFile result.txt;cat result.txt"
         logger.info(cmd)
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
         assert len(response) == 1
-        resp = response[0].strip("\n")
+        resp = response[0].strip("\r\n")
         logger.info("Actual wget Response" + str(resp))
-        assert resp in (expected_link_response)
+        assert resp.lower() in (expected_link_response)
 
         # Validate DNS resolution using dig
-        cmd = "dig " + dnsname + " +short"
+        cmd = "powershell -Command Resolve-DnsName " + dnsname + \
+              " | Select IP4Address | Format-Wide -Column 1"
         logger.info(cmd)
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
-        logger.info("Actual dig Response" + str(response))
-        assert len(response) == len(expected_dns_list)
+        response_transcript = response[:]
+        [response_transcript.remove(res) for res in response if res == '\r\n']
+        logger.info("Actual dig Response" + str(response_transcript))
+        assert len(response_transcript) == len(expected_dns_list)
 
-        for resp in response:
-            dns_response.append(resp.strip("\n"))
+        for resp in response_transcript:
+            dns_response.append(resp.strip("\r\n| "))
 
         for address in expected_dns_list:
             assert address in dns_response
