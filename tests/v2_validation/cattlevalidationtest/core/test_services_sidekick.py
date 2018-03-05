@@ -3,6 +3,8 @@ from common_fixtures import *  # NOQA
 
 WEB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.4"
 SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.11"
+isolation = "default",
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +46,14 @@ def env_with_sidekick_config(client, service_scale,
 def create_env_with_sidekick(client, service_scale, expose_port, env=None):
     launch_config_consumed_service = {
         "imageUuid": WEB_IMAGE_UUID,
-        "networkMode": MANAGED_NETWORK}
+        "networkMode": MANAGED_NETWORK,
+        "isolation": isolation}
 
     # Adding service anti-affinity rule to workaround bug-1419
     launch_config_service = {
         "imageUuid": SSH_IMAGE_UUID,
         "networkMode": MANAGED_NETWORK,
+        "isolation": isolation,
         "stdinOpen": True,
         "tty": True,
         "ports": [expose_port+":22/tcp"],
@@ -70,10 +74,12 @@ def create_env_with_sidekick(client, service_scale, expose_port, env=None):
 def create_env_with_sidekick_for_linking(client, service_scale, env=None):
     launch_config_consumed_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK}
 
     launch_config_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK}
 
     env, service, service_name, consumed_service_name = \
@@ -87,10 +93,12 @@ def create_env_with_sidekick_for_linking(client, service_scale, env=None):
 def create_env_with_sidekick_anti_affinity(client, service_scale):
     launch_config_consumed_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK}
 
     launch_config_service = {
         "imageUuid": SSH_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK,
         "stdinOpen": True,
         "tty": True,
@@ -113,11 +121,13 @@ def create_env_with_exposed_port_on_secondary(client, service_scale,
                                               expose_port):
     launch_config_consumed_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK,
         "ports": [expose_port+":80/tcp"]}
 
     launch_config_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK}
 
     env, service, service_name, consumed_service_name = \
@@ -132,6 +142,7 @@ def create_env_with_exposed_ports_on_primary_and_secondary(
         client, service_scale, expose_port_pri, expose_port_sec):
     launch_config_consumed_service = {
         "imageUuid": SSH_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK,
         "stdinOpen": True,
         "tty": True,
@@ -139,6 +150,7 @@ def create_env_with_exposed_ports_on_primary_and_secondary(
 
     launch_config_service = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK,
         "ports": [expose_port_sec+":22/tcp"]}
 
@@ -154,14 +166,17 @@ def create_env_with_multiple_sidekicks(client, service_scale, expose_port):
 
     launch_config_consumed_service1 = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK}
 
     launch_config_consumed_service2 = {
         "imageUuid": WEB_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK}
 
     launch_config_service = {
         "imageUuid": SSH_IMAGE_UUID,
+        "isolation": isolation,
         "networkMode": MANAGED_NETWORK,
         "stdinOpen": True,
         "tty": True,
@@ -386,6 +401,7 @@ def test_service_links_to_sidekick(client):
     client_port = "7004"
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
                      "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation,
                      "stdinOpen": True,
                      "tty": True,
                      "ports": [client_port+":22/tcp"]}
@@ -796,7 +812,7 @@ def validate_dns(client, service_containers, consumed_service,
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(host.ipAddresses()[0].address, username="rancher",
                     password="WWW.163.com", port=int(exposed_port))
-        
+
         # Validate link containers
         cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
                   dnsname + ":80/name.html -OutFile result.txt;cat result.txt"
