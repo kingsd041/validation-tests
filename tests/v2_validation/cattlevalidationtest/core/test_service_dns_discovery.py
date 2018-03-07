@@ -147,7 +147,7 @@ def test_dns_discovery_consumed_services_scale_down(client):
 
 
 def test_dns_discovery_consumed_services_stop_start_instance(
-        client, socat_containers):
+        client):
 
     port = "406"
 
@@ -317,8 +317,8 @@ def test_dns_discovery_deactivate_activate_environment(client):
     delete_all(client, [env])
 
 
-def test_dns_discovery_services_stop_start_instance(client,
-                                                    socat_containers):
+# Known issues #11998
+def test_dns_discovery_services_stop_start_instance(client):
 
     port = "416"
 
@@ -401,7 +401,8 @@ def test_dns_discovery_services_delete_instance(client):
 
     delete_all(client, [env])
 
-
+# Windows environment does not support the host network
+'''
 def test_dns_discoverys_with_hostnetwork_1(client):
 
     # Verify if able to resolve to containers of service in host network
@@ -460,6 +461,7 @@ def test_dns_discoverys_with_hostnetwork_3(client):
         client, service, [consumed_service], ssh_port,
         linkName=consumed_service.name + "." + env.name + ".rancher.internal")
     delete_all(client, [env])
+
 
 
 def test_dns_discoverys_with_hostnetwork_externalService(client):
@@ -525,13 +527,17 @@ def test_dns_discoverys_with_hostnetwork_externalService_cname(
     validate_external_service_for_hostname(client, host_service,
                                            [ext_service], 33)
     delete_all(client, [env])
+'''
 
 
 def test_dns_discoverys_coss_stack_service(
         client):
 
     env = create_env(client)
-    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation
+                         }
     service_name = "test1"
     service = client.create_service(name=service_name,
                                     stackId=env.id,
@@ -543,7 +549,12 @@ def test_dns_discoverys_coss_stack_service(
     assert service.state == "active"
 
     port = "424"
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID, }
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True
+                        }
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     env1 = create_env(client)
     service_name = random_str()
@@ -572,7 +583,10 @@ def test_dns_discoverys_coss_stack_service_uppercase(
         client):
 
     env = create_env(client)
-    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation
+                         }
     service_name = "TEST"
     service = client.create_service(name=service_name,
                                     stackId=env.id,
@@ -584,7 +598,12 @@ def test_dns_discoverys_coss_stack_service_uppercase(
     assert service.state == "active"
 
     port = "425"
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID, }
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True
+                         }
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     env1 = create_env(client)
     service_name = random_str()
@@ -613,7 +632,10 @@ def test_dns_discoverys_for_containers_by_name_and_fqdn(
         client):
 
     env = create_env(client)
-    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation
+                         }
     service_name = "TEST"
     service = client.create_service(name=service_name,
                                     stackId=env.id,
@@ -625,7 +647,12 @@ def test_dns_discoverys_for_containers_by_name_and_fqdn(
     assert service.state == "active"
 
     port = "426"
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID, }
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True
+                         }
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     service_name = random_str()
     service1 = client.create_service(name=service_name,
@@ -655,7 +682,10 @@ def test_dns_discoverys_for_containers_by_name_and_fqdn_cross_stack(
         client):
 
     env = create_env(client)
-    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_svc = {"imageUuid": WEB_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation
+                         }
     service_name = "TEST"
     service = client.create_service(name=service_name,
                                     stackId=env.id,
@@ -668,7 +698,12 @@ def test_dns_discoverys_for_containers_by_name_and_fqdn_cross_stack(
 
     # Deploy client service
     port = "427"
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID, }
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True
+                         }
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     env1 = create_env(client)
     service_name = random_str()
@@ -719,7 +754,11 @@ def test_dns_discovery_for_sidekick_containers_by_name_and_fqdn_cross_stack(
 
     # Deploy client service in another environment
     port = "429"
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID, }
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True}
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     env1 = create_env(client)
     service_name = random_str()
@@ -743,6 +782,7 @@ def test_dns_discovery_for_sidekick_containers_by_name_and_fqdn_cross_stack(
     delete_all(client, [env, env1])
 
 
+# Known issues #11856
 def test_dns_discovery_for_service_with_sidekick(client):
     port = "430"
     service_scale = 2
@@ -766,7 +806,12 @@ def test_dns_discovery_for_service_with_sidekick(client):
 
     # Deploy client service in same environment
     port = "431"
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID, }
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                        "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True
+                         }
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     service_name = random_str()
     service1 = client.create_service(name=service_name,
@@ -809,7 +854,11 @@ def test_dns_discovery_for_service_with_sidekick_cross_stack(
 
     # Deploy client service in a different environment
     port = "433"
-    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID, }
+    launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "stdinOpen": True,
+                         "tty": True}
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     service_name = random_str()
     env1 = create_env(client)
@@ -844,32 +893,35 @@ def validate_for_container_dns_resolution(
         # Validate port mapping
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host.ipAddresses()[0].address, username="root",
-                    password="root", port=int(sshport))
+        ssh.connect(host.ipAddresses()[0].address, username="rancher",
+                    password="WWW.163.com", port=int(sshport))
 
         # Validate container name resolution
-        cmd = "wget -O result.txt --timeout=20 --tries=1 http://" + \
-              dns_name + ":80/name.html;cat result.txt"
+        cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
+              dns_name + ":80/name.html -OutFile result.txt;cat result.txt"
         logger.info(cmd)
         print cmd
         stdin, stdout, stderr = ssh.exec_command(cmd)
         response = stdout.readlines()
         assert len(response) == 1
-        resp = response[0].strip("\n")
+        resp = response[0].strip("\r\n")
         logger.info(resp)
         print resp
-        assert resp in (container.externalId[:12])
+        assert resp.lower() in (container.externalId[:12])
 
         # Validate DNS resolution using dig
-        cmd = "dig " + dns_name + " +short"
+        cmd = "powershell -Command Resolve-DnsName " + dns_name + \
+        " | Select IP4Address | Format-Wide -Column 1"
         logger.info(cmd)
         print cmd
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
         logger.info("Actual dig Response" + str(response))
-        assert len(response) == 1
-        resp = response[0].strip("\n")
+        response_transcript = response[:]
+        [response_transcript.remove(res) for res in response if res == '\r\n']
+        assert len(response_transcript) == 1
+        resp = response_transcript[0].strip("\r\n| ")
         logger.info(resp)
         print resp
         assert resp == container.primaryIpAddress

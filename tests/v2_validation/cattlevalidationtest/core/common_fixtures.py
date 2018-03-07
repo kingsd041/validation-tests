@@ -21,6 +21,8 @@ logger.setLevel(logging.DEBUG)
 
 FIELD_SEPARATOR = "-"
 
+isolation = "default"
+
 INSERVICE_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 'resources/inservicedc')
 
@@ -101,7 +103,7 @@ DEFAULT_MACHINE_TIMEOUT = 900
 RANCHER_DNS_SERVER = "169.254.169.250"
 RANCHER_DNS_SEARCH = "rancher.internal"
 RANCHER_FQDN = "rancher.internal"
-SERVICE_WAIT_TIMEOUT = 120
+SERVICE_WAIT_TIMEOUT = 240
 
 SSLCERT_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                               'resources/sslcerts')
@@ -1295,6 +1297,11 @@ def validate_linked_service(admin_client, service, consumed_services,
             cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
                   linkName + ":80/name.html -OutFile result.txt;cat result.txt"
             logger.info(cmd)
+
+            # Because #11789, manually clear the cache.
+            clear_cache_cmd = "ipconfig /flushdns"
+            ssh.exec_command(clear_cache_cmd)
+
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
@@ -1806,11 +1813,13 @@ def create_env_with_2_svc(client, scale_svc, scale_consumed_svc, port):
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
                          "stdinOpen": True,
                          "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
                          "tty": True,
                          "ports": [port+":22/tcp"]}
 
     launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID,
-                         "networkMode": MANAGED_NETWORK                    
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,                    
                          }
 
     # Create Environment
