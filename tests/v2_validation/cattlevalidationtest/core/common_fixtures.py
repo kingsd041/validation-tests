@@ -14,6 +14,7 @@ import base64
 import jinja2
 import docker
 
+import pdb
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -1414,6 +1415,11 @@ def validate_dns_service(admin_client, service, consumed_services,
         cmd = "powershell -Command Invoke-WebRequest -uri  http://" + dnsname + \
               ":80/name.html -OutFile result.txt;cat result.txt"
         logger.info(cmd)
+
+        # Because #11789, manually clear the cache.
+        clear_cache_cmd = "ipconfig /flushdns; sleep 10"
+        ssh.exec_command(clear_cache_cmd)
+        #pdb.set_trace()
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
@@ -1426,6 +1432,11 @@ def validate_dns_service(admin_client, service, consumed_services,
         cmd = "powershell -Command Resolve-DnsName " + dnsname + \
               " | Select IP4Address | Format-Wide -Column 1"
         logger.info(cmd)
+
+        # Because #11789, manually clear the cache.
+        clear_cache_cmd = "ipconfig /flushdns; sleep 10"
+        ssh.exec_command(clear_cache_cmd)
+        #pdb.set_trace()
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
@@ -1854,9 +1865,14 @@ def create_env_with_2_svc_dns(client, scale_svc, scale_consumed_svc, port,
                               cross_linking=False):
 
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
+                         "networkMode": MANAGED_NETWORK,
+                         "isolation": isolation,
+                         "tty": True,
                          "ports": [port+":22/tcp"]}
 
-    launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID,
+                                  "isolation": isolation,
+                                  "networkMode": MANAGED_NETWORK}
 
     # Create Environment for dns service and client service
     env = create_env(client)

@@ -29,10 +29,10 @@ def create_environment_with_dns_services(client,
     dns.addservicelink(serviceLink={"serviceId": consumed_service.id})
     dns.addservicelink(serviceLink={"serviceId": consumed_service1.id})
 
-    service = client.wait_success(service, 120)
-    consumed_service = client.wait_success(consumed_service, 120)
-    consumed_service1 = client.wait_success(consumed_service1, 120)
-    dns = client.wait_success(dns, 120)
+    service = client.wait_success(service, 240)
+    consumed_service = client.wait_success(consumed_service, 240)
+    consumed_service1 = client.wait_success(consumed_service1, 240)
+    dns = client.wait_success(dns, 240)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -311,8 +311,7 @@ def test_dns_consumed_services_scale_down(client):
     delete_all(client, [env])
 
 
-def test_dns_consumed_services_stop_start_instance(client,
-                                                   socat_containers):
+def test_dns_consumed_services_stop_start_instance(client):
 
     port = "3111"
 
@@ -482,20 +481,20 @@ def test_dns_deactivate_activate_environment(client):
         dns.name)
 
     env = env.deactivateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 240)
     assert service.state == "inactive"
 
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 240)
     assert consumed_service.state == "inactive"
 
     wait_until_instances_get_stopped(client, service)
     wait_until_instances_get_stopped(client, consumed_service)
 
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 240)
     assert service.state == "active"
 
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 240)
     assert consumed_service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -520,7 +519,9 @@ def test_dns_add_remove_servicelinks(client):
         dns.name)
 
     # Add another service to environment
-    launch_config = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation}
 
     random_name = random_str()
     consumed_service_name = random_name.replace("-", "")
@@ -578,6 +579,9 @@ def test_dns_services_delete_service_add_service(client):
 
     # Add another service and link to dns service
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "tty": True,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation,
                      "ports": [port1+":22/tcp"]}
 
     random_name = random_str()
@@ -630,7 +634,9 @@ def test_dns_services_delete_and_add_consumed_service(client):
     # Add another consume service and link the service to this newly created
     # service
 
-    launch_config = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation}
 
     random_name = random_str()
     service_name = random_name.replace("-", "")
@@ -657,8 +663,7 @@ def test_dns_services_delete_and_add_consumed_service(client):
     delete_all(client, [env])
 
 
-def test_dns_services_stop_start_instance(client,
-                                          socat_containers):
+def test_dns_services_stop_start_instance(client):
 
     port = "3120"
 
@@ -797,7 +802,9 @@ def test_dns_add_remove_servicelinks_using_set(client):
         dns.name)
 
     # Add another service to environment
-    launch_config = {"imageUuid": WEB_IMAGE_UUID}
+    launch_config = {"imageUuid": WEB_IMAGE_UUID,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation}
 
     random_name = random_str()
     consumed_service_name = random_name.replace("-", "")
@@ -833,6 +840,8 @@ def test_dns_add_remove_servicelinks_using_set(client):
     delete_all(client, [env])
 
 
+# Windows environment does not support the host network
+'''
 def test_dns_svc_managed_cosumed_service_hostnetwork(client):
 
     port = "3118"
@@ -890,3 +899,4 @@ def test_dns_svc_hostnetwork_cosumed_service_managednetwork(
         dns_name)
 
     delete_all(client, [env])
+'''
