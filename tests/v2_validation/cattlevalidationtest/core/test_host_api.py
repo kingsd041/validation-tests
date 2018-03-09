@@ -42,13 +42,13 @@ def test_host_api_hoststats(client):
     assert len(hosts) > 0
 
     stats = hosts[0].hostStats()
-    conn = ws.create_connection(stats.url + '?token=' + stats.token)
+    conn = ws.create_connection(stats.url + '?token=' + stats.token, timeout=10)
     result = conn.recv()
     conn.close()
     assert result is not None
     assert result.startswith('[')
 
-    project = client.list_project(uuid="adminProject")[0]
+    project = client.list_project(name=PROJECT_NAME)[0]
     stats = project.hostStats()
     conn = ws.create_connection(stats.url + '?token=' + stats.token)
     result = conn.recv()
@@ -56,11 +56,13 @@ def test_host_api_hoststats(client):
     assert result is not None
     assert result.startswith('[')
 
-
-@pytest.mark.skipif(True, reason="Temporarily disabled - 6757")
+#@pytest.mark.skipif(True, reason="Temporarily disabled - 6757")
 def test_host_api_containerstats(client):
     container = client.create_container(name=random_str(),
-                                        imageUuid=TEST_IMAGE_UUID)
+                                        imageUuid=TEST_IMAGE_UUID,
+                                        networkMode=MANAGED_NETWORK,
+                                        isolation=isolation
+                                        )
     container = client.wait_success(container, timeout=600)
 
     assert len(container.hosts()) == 1
@@ -74,7 +76,7 @@ def test_host_api_containerstats(client):
     delete_all(client, [container])
 
 
-@pytest.mark.skipif(True, reason="Temporarily disabled - 6757")
+#@pytest.mark.skipif(True, reason="Temporarily disabled - 6757")
 def test_host_api_service_containerstats(client):
     env = client.create_stack(name=random_str())
     env = client.wait_success(env)
