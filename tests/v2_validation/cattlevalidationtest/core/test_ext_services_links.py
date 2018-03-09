@@ -310,6 +310,9 @@ def test_extservice_services_delete_service_add_service(client):
 
     # Add another service and link to external service
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "tty": True,
+                     "networkMode": MANAGED_NETWORK,
+                     "isolation": isolation,
                      "ports": [port1+":22/tcp"]}
 
     random_name = random_str()
@@ -356,8 +359,14 @@ def test_extservice_delete_and_add_ext_service(client):
     # Add another external service and link the service to this newly created
     # external service
 
-    c1 = client.create_container(name=random_str(), imageUuid=WEB_IMAGE_UUID)
-    c2 = client.create_container(name=random_str(), imageUuid=WEB_IMAGE_UUID)
+    c1 = client.create_container(name=random_str(), imageUuid=WEB_IMAGE_UUID,
+                                                    tty=True,
+                                                    networkMode=MANAGED_NETWORK,
+                                                    isolation=isolation)
+    c2 = client.create_container(name=random_str(), imageUuid=WEB_IMAGE_UUID,
+                                                    tty=True,
+                                                    networkMode=MANAGED_NETWORK,
+                                                    isolation=isolation)
 
     c1 = client.wait_success(c1, 120)
     assert c1.state == "running"
@@ -386,8 +395,7 @@ def test_extservice_delete_and_add_ext_service(client):
     delete_all(client, con_list)
 
 
-def test_extservice_services_stop_start_instance(client,
-                                                 socat_containers):
+def test_extservice_services_stop_start_instance(client):
 
     port = "3020"
 
@@ -444,7 +452,6 @@ def test_extservice_services_restart_instance(client):
     con_list.append(env)
     delete_all(client, con_list)
 
-
 def test_extservice_add_and_delete_ips(client):
 
     port = "3023"
@@ -460,7 +467,10 @@ def test_extservice_add_and_delete_ips(client):
 
     # Update external Service to add one more ip
 
-    c1 = client.create_container(name=random_str(), imageUuid=WEB_IMAGE_UUID)
+    c1 = client.create_container(name=random_str(), imageUuid=WEB_IMAGE_UUID,
+                                                    tty=True,
+                                                    networkMode=MANAGED_NETWORK,
+                                                    isolation=isolation)
     c1 = client.wait_success(c1, 120)
     assert c1.state == "running"
 
@@ -487,7 +497,7 @@ def test_extservice_add_and_delete_ips(client):
     con_list.append(env)
     delete_all(client, con_list)
 
-
+# Known issue #12059
 def test_extservice_with_cname(client):
 
     port = "3024"
