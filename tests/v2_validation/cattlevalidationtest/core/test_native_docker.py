@@ -1,11 +1,12 @@
 from common_fixtures import *  # NOQA
 import websocket as ws
 from test_container import assert_execute, assert_stats, assert_ip_inject
+import pdb
 
 CONTAINER_APPEAR_TIMEOUT_MSG = 'Timed out waiting for container ' \
                                'to appear. Name: [%s].'
 
-NATIVE_TEST_IMAGE = 'cattle/test-agent'
+NATIVE_TEST_IMAGE = 'kingsd/win-nodejs:5.0'
 
 
 @pytest.fixture(scope='module')
@@ -17,9 +18,9 @@ def host(client):
 
 
 @pytest.fixture(scope='module')
-def pull_images(client, socat_containers):
+def pull_images(client):
     docker_client = get_docker_client(host(client))
-    images = [(NATIVE_TEST_IMAGE, 'latest'), ('busybox', 'latest')]
+    images = [(NATIVE_TEST_IMAGE, '5.0'), ('kingsd/win-nginx', 'v0.4')]
     for image in images:
         docker_client.pull(image[0], image[1])
 
@@ -43,8 +44,8 @@ def native_cleanup(client, request):
 def native_name(random_str):
     return 'native-' + random_str
 
-
-def test_native_net_blank(socat_containers, client, native_name, pull_images):
+# Known issue 12060
+def test_native_net_blank(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     docker_container = docker_client.create_container(NATIVE_TEST_IMAGE,
                                                       name=native_name)
@@ -52,12 +53,12 @@ def test_native_net_blank(socat_containers, client, native_name, pull_images):
                                                          docker_container,
                                                          docker_client,
                                                          native_name)
-    common_network_asserts(rancher_container, docker_container, 'default')
+    common_network_asserts_default(rancher_container, docker_container, 'default')
 
 
-def test_native_net_bridge(socat_containers, client, native_name, pull_images):
+def test_native_net_nat(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
-    host_config = docker_client.create_host_config(network_mode='bridge')
+    host_config = docker_client.create_host_config(network_mode='nat')
     docker_container = docker_client.create_container(NATIVE_TEST_IMAGE,
                                                       name=native_name,
                                                       host_config=host_config)
@@ -65,9 +66,10 @@ def test_native_net_bridge(socat_containers, client, native_name, pull_images):
                                                          docker_container,
                                                          docker_client,
                                                          native_name)
-    common_network_asserts(rancher_container, docker_container, 'bridge')
+    common_network_asserts(rancher_container, docker_container, 'nat')
 
-
+# Windows environment does not support
+'''
 def test_native_net_host(socat_containers, client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     host_config = docker_client.create_host_config(network_mode='host')
@@ -104,9 +106,9 @@ def test_native_net_container(socat_containers, client, native_name,
                                                  native_name)
     common_network_asserts(container, docker_container, 'container')
     assert container['networkContainerId'] == target_container.id
+'''
 
-
-def test_native_lifecycyle(socat_containers, client, native_name, pull_images):
+def test_native_lifecycyle(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     docker_container = docker_client.create_container(NATIVE_TEST_IMAGE,
                                                       name=native_name)
@@ -131,8 +133,9 @@ def test_native_lifecycyle(socat_containers, client, native_name, pull_images):
     docker_client.remove_container(docker_container, force=True)
     wait_for_state(client, 'removed', c_id)
 
-
-def test_native_managed_network(socat_containers, client, native_name,
+# Windows environment does not support
+'''
+def test_native_managed_network(client, native_name,
                                 pull_images):
     docker_client = get_docker_client(host(client))
     docker_container = docker_client. \
@@ -148,7 +151,7 @@ def test_native_managed_network(socat_containers, client, native_name,
     assert container.primaryIpAddress != docker_container['NetworkSettings'][
         'IPAddress']
     assert container.networkMode == 'managed'
-
+'''
 
 def wait_for_state(client, expected_state, c_id):
     def stopped_check():
@@ -158,7 +161,8 @@ def wait_for_state(client, expected_state, c_id):
     wait_for(stopped_check,
              'Timeout waiting for container to stop. Id: [%s]' % c_id)
 
-
+# Windows environment does not support
+'''
 def test_native_volumes(socat_containers, client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     config = docker_client.create_host_config(
@@ -199,9 +203,9 @@ def test_native_volumes(socat_containers, client, native_name, pull_images):
     assert tmp_mount.path == '/host/tmpreadonly'
     assert tmp_mount.permission == 'ro'
     assert tmp_mount.volumeName == '/tmp1'
+'''
 
-
-def test_native_logs(client, socat_containers, native_name, pull_images):
+def test_native_logs(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     test_msg = 'LOGS_WORK'
     docker_container = docker_client. \
@@ -210,7 +214,8 @@ def test_native_logs(client, socat_containers, native_name, pull_images):
                          tty=True,
                          stdin_open=True,
                          detach=True,
-                         command=['/bin/bash', '-c', 'echo ' + test_msg])
+                         command=['powershell', 'echo ' + test_msg]
+                         )
     rancher_container, _ = start_and_wait(client, docker_container,
                                           docker_client,
                                           native_name)
@@ -219,7 +224,7 @@ def test_native_logs(client, socat_containers, native_name, pull_images):
     assert found_msg
 
 
-def test_native_exec(client, socat_containers, native_name, pull_images):
+def test_native_exec(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     test_msg = 'EXEC_WORKS'
     docker_container = docker_client. \
@@ -228,14 +233,15 @@ def test_native_exec(client, socat_containers, native_name, pull_images):
                          tty=True,
                          stdin_open=True,
                          detach=True,
-                         command=['/bin/bash'])
+                         command=['powershell'])
     rancher_container, _ = start_and_wait(client, docker_container,
                                           docker_client,
                                           native_name)
 
     assert_execute(rancher_container, test_msg)
 
-
+# Windows environment does not support
+'''
 def test_native_ip_inject(client, socat_containers, native_name,
                           pull_images):
     docker_client = get_docker_client(host(client))
@@ -253,9 +259,9 @@ def test_native_ip_inject(client, socat_containers, native_name,
     rancher_container, _ = start_and_wait(client, docker_container,
                                           docker_client, native_name)
     assert_ip_inject(client.reload(rancher_container))
+'''
 
-
-def test_native_container_stats(client, socat_containers, native_name,
+def test_native_container_stats(client, native_name,
                                 pull_images):
     docker_client = get_docker_client(host(client))
     docker_container = docker_client. \
@@ -264,7 +270,7 @@ def test_native_container_stats(client, socat_containers, native_name,
                          tty=True,
                          stdin_open=True,
                          detach=True,
-                         command=['/bin/bash'])
+                         command=['powershell'])
     rancher_container, _ = start_and_wait(client, docker_container,
                                           docker_client,
                                           native_name)
@@ -306,10 +312,22 @@ def common_network_asserts(rancher_container, docker_container,
     else:
         ip_address = rancher_container.primaryIpAddress
     assert ip_address == \
-        docker_container['NetworkSettings']['IPAddress']
+        docker_container['NetworkSettings']['Networks'][expected_net_mode]['IPAddress']
 
     assert rancher_container.networkMode == expected_net_mode
 
+def common_network_asserts_default(rancher_container, docker_container,
+                           expected_net_mode):
+    assert rancher_container.externalId == docker_container['Id']
+    assert rancher_container.state == 'running'
+    if rancher_container.primaryIpAddress is None:
+        ip_address = ""
+    else:
+        ip_address = rancher_container.primaryIpAddress
+    assert ip_address == \
+        docker_container['NetworkSettings']['Networks']['transparent']['IPAddress']
+
+    assert rancher_container.networkMode == expected_net_mode
 
 def wait_on_rancher_container(client, name, timeout=None):
     def check():
@@ -327,8 +345,9 @@ def wait_on_rancher_container(client, name, timeout=None):
     container = client.wait_success(container, **kwargs)
     return container
 
-
-def test_native_fields(socat_containers, client, pull_images):
+# Most of the parameters windows environment does not support, so the cancellation
+'''
+def test_native_fields(client, pull_images):
     docker_client = get_docker_client(host(client))
     name = 'native-%s' % random_str()
 
@@ -384,3 +403,4 @@ def test_native_fields(socat_containers, client, pull_images):
     assert rancher_container.restartPolicy["name"] == u"on-failure"
     assert rancher_container.restartPolicy["maximumRetryCount"] == 5
     assert rancher_container.devices == ['/dev/null:/dev/xnull:rw']
+'''
