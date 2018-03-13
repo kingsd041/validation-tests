@@ -1299,10 +1299,6 @@ def validate_linked_service(admin_client, service, consumed_services,
                   linkName + ":80/name.html -OutFile result.txt;cat result.txt"
             logger.info(cmd)
 
-            # Because #11789, manually clear the cache.
-            clear_cache_cmd = "ipconfig /flushdns"
-            ssh.exec_command(clear_cache_cmd)
-
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
@@ -1416,9 +1412,6 @@ def validate_dns_service(admin_client, service, consumed_services,
               ":80/name.html -OutFile result.txt;cat result.txt"
         logger.info(cmd)
 
-        # Because #11789, manually clear the cache.
-        clear_cache_cmd = "ipconfig /flushdns; sleep 10"
-        ssh.exec_command(clear_cache_cmd)
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
@@ -1432,9 +1425,6 @@ def validate_dns_service(admin_client, service, consumed_services,
               " | Select IP4Address | Format-Wide -Column 1"
         logger.info(cmd)
 
-        # Because #11789, manually clear the cache.
-        clear_cache_cmd = "ipconfig /flushdns; sleep 10"
-        ssh.exec_command(clear_cache_cmd)
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
@@ -1491,10 +1481,6 @@ def validate_external_service(admin_client, service, ext_services,
                   ext_service_name + ":80/name.html -OutFile result.txt;cat result.txt"
             print cmd
 
-            # Because #11789, manually clear the cache.
-            clear_cache_cmd = "ipconfig /flushdns"
-            ssh.exec_command(clear_cache_cmd)
-            #pdb.set_trace()
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
@@ -1508,10 +1494,6 @@ def validate_external_service(admin_client, service, ext_services,
             " | Select IP4Address | Format-Wide -Column 1"
             print cmd
 
-            # Because #11789, manually clear the cache.
-            clear_cache_cmd = "ipconfig /flushdns"
-            ssh.exec_command(clear_cache_cmd)
-            #pdb.set_trace()
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
@@ -1549,11 +1531,9 @@ def validate_external_service_for_hostname(admin_client, service, ext_services,
             ssh.connect(host.ipAddresses()[0].address, username="rancher",
                         password="WWW.163.com", port=int(exposed_port))
             cmd = "powershell -Command ping -n 2 " + ext_service.name + \
-                  "> result.txt;cat result.txt"
+                  " > result.txt;cat result.txt"
             print cmd
-            # Because #11789, manually clear the cache.
-            clear_cache_cmd = "ipconfig /flushdns ; sleep 10"
-            ssh.exec_command(clear_cache_cmd)
+
             stdin, stdout, stderr = ssh.exec_command(cmd)
             response = stdout.readlines()
             print "Actual wget Response" + str(response)
