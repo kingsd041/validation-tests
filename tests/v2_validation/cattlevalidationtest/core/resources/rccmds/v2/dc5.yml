@@ -4,7 +4,7 @@ services:
     labels:
       io.rancher.container.pull_image: always
     tty: true
-    image: ubuntu:14.04.3
+    image: microsoft/nanoserver
     volumes:
     - testvol:/home
     volume_driver: local

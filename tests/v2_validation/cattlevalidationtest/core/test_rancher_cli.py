@@ -248,7 +248,8 @@ def test_cli_v2_volume_create_remove(client, rancher_cli_container):
     cli_volume_create_remove(client, compose_directory,
                              rancher_cli_container, v2=True)
 
-
+# Windows environment don't support.
+'''
 def test_cli_inspect_volume(client,
                             rancher_cli_container):
     compose_directory = RCLICOMMANDS_SUBDIR
@@ -260,13 +261,13 @@ def test_cli_v2_inspect_volume(client, rancher_cli_container):
     compose_directory = RCLIV2COMMANDS_SUBDIR
     cli_inspect_volume(client, compose_directory,
                        rancher_cli_container, v2=True)
+'''
 
 
 def cli_create_service(client, compose_directory,
                        rancher_cli_container, v2=None):
 
     # This method tests creation of a service
-
     stack_name = random_str().replace("-", "")
 
     if v2 is None:
@@ -1254,6 +1255,7 @@ def test_cli_catalog_list(client, rancher_cli_container):
     # Community Catalog Processing
     response = requests.get(community_catalog_url)
     template = json.loads(response.content)
+
     print template
     catalogdata = template["data"]
     for item in catalogdata:
@@ -1262,6 +1264,7 @@ def test_cli_catalog_list(client, rancher_cli_container):
     # Library Catalog Processing
     response = requests.get(library_catalog_url)
     template = json.loads(response.content)
+
     print template
     libcatalogdata = template["data"]
     for item in libcatalogdata:
@@ -1562,8 +1565,8 @@ def test_cli_env_deactivate_activate(admin_client,
 
 
 def test_rancher_compose_services_log_driver(client,
-                                             rancher_cli_container,
-                                             socat_containers):
+                                             rancher_cli_container
+                                             ):
     compose_directory = RCCOMMANDS_SUBDIR
     check_rancher_compose_services_log_driver(client,
                                               compose_directory)

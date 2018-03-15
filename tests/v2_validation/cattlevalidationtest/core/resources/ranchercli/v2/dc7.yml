@@ -3,4 +3,4 @@ rtest7:
     rtest7: value7
   tty: true
   scale: 2
-  image: ubuntu:14.04.3
+  image: microsoft/nanoserver

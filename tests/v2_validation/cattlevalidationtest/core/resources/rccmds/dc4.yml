@@ -12,7 +12,7 @@ test4:
   tty: true
   hostname: rancherhost
   log_opt: {}
-  image: ubuntu:14.04.3
+  image: microsoft/nanoserver
   volumes:
   - testvolume:/home
   stdin_open: true

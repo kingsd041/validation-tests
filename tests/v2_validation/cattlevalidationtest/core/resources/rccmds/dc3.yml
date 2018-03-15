@@ -9,7 +9,7 @@ test3:
   hostname: rancherhost
   pid: host
   log_opt: {}
-  image: ubuntu:14.04.3
+  image: microsoft/nanoserver
   cpu_shares: 256
   privileged: true
   stdin_open: true

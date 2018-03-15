@@ -5,4 +5,4 @@ services:
       rtest6: value6
     scale: 2
     tty: true
-    image: ubuntu:14.04.3
+    image: microsoft/nanoserver

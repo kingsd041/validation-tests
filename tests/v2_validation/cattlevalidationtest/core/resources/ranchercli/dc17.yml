@@ -2,6 +2,6 @@ rtest17:
   labels:
     rtest17: value17
   tty: true
-  image: ubuntu:14.04.3
+  image: microsoft/nanoserver
   volumes:
   - test_insp_vol:/tmp

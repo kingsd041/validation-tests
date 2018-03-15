@@ -4,16 +4,16 @@ services:
     labels:
       rtest18-one: value18-one
     tty: true
-    image: ubuntu:14.04.3
+    image: microsoft/nanoserver
 
   rtest18-two:
     labels:
       rtest18-two: value18-two
     tty: true
-    image: ubuntu:14.04.3
+    image: microsoft/nanoserver
 
   rtest18-three:
     labels:
       rtest18-three: value18-three
     tty: true
-    image: ubuntu:14.04.3
+    image: microsoft/nanoserver

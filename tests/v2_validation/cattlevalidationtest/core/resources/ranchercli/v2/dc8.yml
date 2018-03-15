@@ -4,7 +4,7 @@ services:
     restart: always
     tty: true
     scale: 2
-    image: ubuntu:14.04.2
+    image: microsoft/nanoserver:sac2016
     stdin_open: true
     labels:
       rtest8-one: value8-one
@@ -12,7 +12,7 @@ services:
     restart: always
     tty: true
     scale: 2
-    image: ubuntu:14.04.2
+    image: microsoft/nanoserver:sac2016
     stdin_open: true
     labels:
       rtest8-two: value8-two

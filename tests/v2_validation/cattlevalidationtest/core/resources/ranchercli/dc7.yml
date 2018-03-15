@@ -2,4 +2,4 @@ rtest7:
   labels:
     rtest7: value7
   tty: true
-  image: ubuntu:14.04.3
+  image: microsoft/nanoserver

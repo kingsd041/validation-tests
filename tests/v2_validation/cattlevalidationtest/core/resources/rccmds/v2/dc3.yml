@@ -11,7 +11,7 @@ services:
     tty: true
     hostname: rancherhost
     pid: host
-    image: ubuntu:14.04.3
+    image: microsoft/nanoserver
     cpu_shares: 256
     privileged: true
     stdin_open: true

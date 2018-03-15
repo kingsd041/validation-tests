@@ -13,7 +13,7 @@ services:
       io.rancher.container.hostname_override: container_name
     tty: true
     hostname: rancherhost
-    image: ubuntu:14.04.3
+    image: microsoft/nanoserver
     volumes:
     - testvolume:/home
     stdin_open: true
