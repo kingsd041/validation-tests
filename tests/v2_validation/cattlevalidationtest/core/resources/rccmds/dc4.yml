@@ -11,8 +11,7 @@ test4:
     io.rancher.container.hostname_override: container_name
   tty: true
   hostname: rancherhost
-  log_opt: {}
   image: microsoft/nanoserver
-  volumes:
-  - testvolume:/home
+#  volumes:
+#  - testvolume:/home
   stdin_open: true

@@ -1573,60 +1573,54 @@ def test_rancher_compose_services_log_driver(client,
 
 
 def test_rancher_compose_v2_services_log_driver(client,
-                                                rancher_cli_container,
-                                                socat_containers):
+                                                rancher_cli_container):
     compose_directory = RCV2COMMANDS_SUBDIR
     check_rancher_compose_services_log_driver(client,
                                               compose_directory)
 
 
 def test_rancher_compose_services_network(client,
-                                          rancher_cli_container,
-                                          socat_containers):
+                                          rancher_cli_container):
     compose_directory = RCCOMMANDS_SUBDIR
     check_rancher_compose_services_network(client,
                                            compose_directory)
 
 
 def test_rancher_compose_v2_services_network(client,
-                                             rancher_cli_container,
-                                             socat_containers):
+                                             rancher_cli_container):
     compose_directory = RCV2COMMANDS_SUBDIR
     check_rancher_compose_services_network(client,
                                            compose_directory)
 
 
 def test_rancher_compose_services_security(client,
-                                           rancher_cli_container,
-                                           socat_containers):
+                                           rancher_cli_container):
     compose_directory = RCCOMMANDS_SUBDIR
     check_rancher_compose_services_security(client,
                                             compose_directory)
 
 
 def test_rancher_compose_v2_services_security(client,
-                                              rancher_cli_container,
-                                              socat_containers):
+                                              rancher_cli_container):
     compose_directory = RCV2COMMANDS_SUBDIR
     check_rancher_compose_services_security(client,
                                             compose_directory)
 
-
+# Windows environment does not support volume
+'''
 def test_rancher_compose_services_volume(client,
-                                         rancher_cli_container,
-                                         socat_containers):
+                                         rancher_cli_container):
     compose_directory = RCCOMMANDS_SUBDIR
     check_rancher_compose_services_volume(client,
                                           compose_directory)
 
 
 def test_rancher_compose_v2_services_volume(client,
-                                            rancher_cli_container,
-                                            socat_containers):
+                                            rancher_cli_container):
     compose_directory = RCV2COMMANDS_SUBDIR
     check_rancher_compose_services_network(client,
                                            compose_directory)
-
+'''
 
 def check_rancher_compose_services_security(client,
                                             compose_directory):
@@ -1649,15 +1643,18 @@ def check_rancher_compose_services_security(client,
         inspect = docker_client.inspect_container(con.externalId)
         logger.info("Checked for containers running " + con.name)
         assert inspect["State"]["Running"]
-        assert inspect["HostConfig"]["Privileged"]
-        assert inspect["HostConfig"]["Memory"] == 104857600
-        assert inspect["HostConfig"]["CpuShares"] == 256
-        assert inspect["HostConfig"]["CapAdd"] == ["AUDIT_CONTROL",
-                                                   "AUDIT_WRITE"]
-        assert inspect["HostConfig"]["CapDrop"] == ["BLOCK_SUSPEND",
-                                                    "CHOWN"]
+
+        # The Windows environment does not support privileges, Memory, CpuShares, CapAdd, CapDrop, PidMode.
+
+        #assert inspect["HostConfig"]["Privileged"]
+        #assert inspect["HostConfig"]["Memory"] == 104857600
+        #assert inspect["HostConfig"]["CpuShares"] == 256
+        #assert inspect["HostConfig"]["CapAdd"] == ["AUDIT_CONTROL",
+        #                                           "AUDIT_WRITE"]
+        #assert inspect["HostConfig"]["CapDrop"] == ["BLOCK_SUSPEND",
+        #                                            "CHOWN"]
         assert inspect["Config"]["Hostname"] == "rancherhost"
-        assert inspect["HostConfig"]["PidMode"] == "host"
+        #assert inspect["HostConfig"]["PidMode"] == "host"
     delete_all(client, [stack])
 
 
@@ -1704,8 +1701,9 @@ def check_rancher_compose_services_network(client,
         assert inspect["Config"]["Labels"][requested_ip] == "209.243.140.21"
         dns_list = inspect["HostConfig"]["Dns"]
         dnssearch_list = inspect["HostConfig"]["DnsSearch"]
-        assert "209.243.150.21" in dns_list
-        assert "www.google.com" in dnssearch_list
+        # Windows environment does not support setting up DNS.
+        #assert "209.243.150.21" in dns_list
+        #assert "www.google.com" in dnssearch_list
     delete_all(client, [stack])
 
 
@@ -1734,7 +1732,7 @@ def check_rancher_compose_services_log_driver(client,
         inspect = docker_client.inspect_container(con.externalId)
         logger.info("Checked for containers running" + con.name)
         assert inspect["State"]["Running"]
-        assert inspect["HostConfig"]["LogConfig"]["Type"] == "syslog"
+        assert inspect["HostConfig"]["LogConfig"]["Type"] == "json-file"
 
     delete_all(client, [stack])
 

@@ -14,7 +14,6 @@ import base64
 import jinja2
 import docker
 
-import pdb
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -3504,7 +3503,7 @@ def execute_rancher_cli(client, stack_name, command,
     print "Final Command \n" + cmd
     stdin, stdout, stderr = ssh.exec_command(cmd, timeout=timeout)
     response = stdout.readlines()
-    
+
     return response
 
 

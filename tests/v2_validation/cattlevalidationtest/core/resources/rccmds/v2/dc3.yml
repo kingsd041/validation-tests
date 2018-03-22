@@ -5,7 +5,7 @@ services:
     - BLOCK_SUSPEND
     - CHOWN
     logging:
-      driver: syslog
+      driver: json-file
     labels:
       io.rancher.container.pull_image: always
     tty: true
@@ -13,7 +13,6 @@ services:
     pid: host
     image: microsoft/nanoserver
     cpu_shares: 256
-    privileged: true
     stdin_open: true
     mem_limit: 104857600
     cap_add:

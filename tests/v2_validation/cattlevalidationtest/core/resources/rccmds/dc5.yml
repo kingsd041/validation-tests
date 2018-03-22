@@ -2,7 +2,6 @@ test5:
   labels:
     io.rancher.container.pull_image: always
   tty: true
-  log_opt: {}
   image: microsoft/nanoserver
   volumes:
   - testvol:/home

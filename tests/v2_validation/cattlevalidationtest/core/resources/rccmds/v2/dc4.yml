@@ -14,6 +14,6 @@ services:
     tty: true
     hostname: rancherhost
     image: microsoft/nanoserver
-    volumes:
-    - testvolume:/home
+#    volumes:
+#    - testvolume:/home
     stdin_open: true
