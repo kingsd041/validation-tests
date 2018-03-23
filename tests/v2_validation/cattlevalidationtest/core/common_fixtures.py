@@ -1592,8 +1592,8 @@ def rancher_compose_container(admin_client, client, request):
 
 def launch_rancher_compose(client, env):
     compose_configs = env.exportconfig()
-    docker_compose = compose_configs["dockerComposeConfig"]
-    rancher_compose = compose_configs["rancherComposeConfig"]
+    docker_compose = compose_configs["dockerComposeConfig"].replace("\r","").replace("\n","`n").replace(" ","` ")
+    rancher_compose = compose_configs["rancherComposeConfig"].replace("\r","").replace("\n","`n").replace(" ","` ")
     response = execute_rancher_cli(client, env.name + "rancher", "up -d",
                                    docker_compose, rancher_compose)
     expected_resp = "Creating stack"
@@ -3472,7 +3472,6 @@ def execute_rancher_cli(client, stack_name, command,
 
     docker_filename = stack_name + "-docker-compose.yml"
     rancher_filename = stack_name + "-rancher-compose.yml"
-
 
     powershell_cmd = "powershell -Command "
     cmd1 = "$env:RANCHER_URL=\'%s\'" % rancher_server_url()
