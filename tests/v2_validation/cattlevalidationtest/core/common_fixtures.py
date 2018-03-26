@@ -1545,14 +1545,18 @@ def rancher_compose_container(admin_client, client, request):
     if rancher_compose_con["container"] is not None:
         return
     setting = admin_client.by_id_setting(
-        "rancher.compose.linux.url")
+        "rancher.compose.windows.url")
     default_rancher_compose_url = setting.value
     rancher_compose_url = \
         os.environ.get('RANCHER_COMPOSE_URL', default_rancher_compose_url)
     compose_file = rancher_compose_url.split("/")[-1]
 
-    cmd1 = "wget " + rancher_compose_url
-    cmd2 = "tar xvf " + compose_file
+    #cmd1 = "wget " + rancher_compose_url
+    #cmd2 = "tar xvf " + compose_file
+    cmd1 = "powershell -Command Invoke-WebRequest -uri " + \
+            rancher_compose_url + " -OutFile " + compose_file
+    cmd2 = "Expand-Archive -Path " + compose_file + \
+            " -DestinationPath rancher-compose"
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
     assert len(hosts) > 0
@@ -1560,7 +1564,8 @@ def rancher_compose_container(admin_client, client, request):
     port = rancher_compose_con["port"]
     c = client.create_container(name="rancher-compose-client",
                                 networkMode=MANAGED_NETWORK,
-                                imageUuid="docker:sangeetha/testclient",
+                                tty=True,
+                                imageUuid="docker:kingsd/windowsssh:v0.11",
                                 ports=[port+":22/tcp"],
                                 requestedHostId=host.id
                                 )
@@ -1571,16 +1576,17 @@ def rancher_compose_container(admin_client, client, request):
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(host.ipAddresses()[0].address, username="root",
-                password="root", port=int(port))
+    ssh.connect(host.ipAddresses()[0].address, username="rancher",
+                password="WWW.163.com", port=int(port))
     cmd = cmd1+";"+cmd2
     print cmd
     stdin, stdout, stderr = ssh.exec_command(cmd)
-    response = stdout.readlines()
-    found = False
-    for resp in response:
-        if "/rancher-compose" in resp:
-            found = True
+    response = stderr.readlines()
+
+    if len(response) == 0:
+        found = True
+    else:
+        found = False
     assert found
     rancher_compose_con["container"] = c
     rancher_compose_con["host"] = host
@@ -1615,10 +1621,12 @@ def execute_rancher_compose(client, env_name, docker_compose,
     rancher_filename = env_name + "-rancher-compose.yml"
     project_name = env_name
 
-    cmd1 = "export RANCHER_URL=" + rancher_server_url()
-    cmd2 = "export RANCHER_ACCESS_KEY=" + access_key
-    cmd3 = "export RANCHER_SECRET_KEY=" + secret_key
-    cmd4 = "cd rancher-compose-v*"
+    powershell_cmd = "powershell -Command "
+    cmd1 = "$env:RANCHER_URL=\'%s\'" % rancher_server_url()
+    cmd2 = "$env:RANCHER_ACCESS_KEY=\'%s\'" % access_key
+    cmd3 = "$env:RANCHER_SECRET_KEY=\'%s\'" % secret_key
+    cmd4 = "cd C:\\Windows\\rancher-compose\\rancher-compose-v*"
+    cmd41 = "$env:RANCHER_ENVIRONMENT=\'%s\'" % PROJECT_NAME
     cmd5 = 'echo "' + docker_compose + '" > ' + docker_filename
     if rancher_compose is not None:
         rcmd = 'echo "' + rancher_compose + '" > ' + rancher_filename + ";"
@@ -1632,27 +1640,26 @@ def execute_rancher_compose(client, env_name, docker_compose,
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(
-        rancher_compose_con["host"].ipAddresses()[0].address, username="root",
-        password="root", port=int(rancher_compose_con["port"]))
-    cmd = cmd1+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6
+        rancher_compose_con["host"].ipAddresses()[0].address, username="rancher",
+        password="WWW.163.com", port=int(rancher_compose_con["port"]))
+    cmd = powershell_cmd+cmd1+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd41+";"+cmd5+";"+cmd6
     print cmd
     stdin, stdout, stderr = ssh.exec_command(cmd, timeout=timeout)
-    response = stdout.readlines()
+    response = stderr.readlines()
     print "Obtained Response: " + str(response)
     print "Expected Response: " + expected_resp
     found = False
-    for resp in response:
-        if expected_resp in resp:
-            found = True
+    if len(response) == 0:
+        found = True
     assert found
 
 
 def launch_rancher_compose_from_file(client, subdir, docker_compose,
                                      env_name, command, response,
                                      rancher_compose=None):
-    docker_compose = readDataFile(subdir, docker_compose)
+    docker_compose = readDataFile(subdir, docker_compose).replace("\r","").replace("\n","`n").replace(" ","` ")
     if rancher_compose is not None:
-        rancher_compose = readDataFile(subdir, rancher_compose)
+        rancher_compose = readDataFile(subdir, rancher_compose).replace("\r","").replace("\n","`n").replace(" ","` ")
     execute_rancher_compose(client, env_name, docker_compose,
                             rancher_compose, command, response)
 
