@@ -1,12 +1,14 @@
 testl2:
+  net: transparent
   tty: true
-  image: ubuntu:14.04.3
+  image: microsoft/nanoserver
   stdin_open: true
 testl3:
   external_links:
   - testlink/testl1:linkexttest
   tty: true
-  image: ubuntu:14.04.3
+  image: microsoft/nanoserver
+  net: transparent
   links:
   - testl2:linktest
   stdin_open: true

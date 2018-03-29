@@ -1,9 +1,11 @@
 test120160729:
+  net: transparent
   ports:
   - 6002:22/tcp
   restart: always
   tty: true
-  image: sangeetha/testclient
+  image: kingsd/windowsssh:v0.11
   stdin_open: true
+  net: transparent
   labels:
     test1: value1

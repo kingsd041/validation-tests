@@ -1,9 +1,9 @@
 from common_fixtures import *  # NOQA
 import json
 
-TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
-TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
-TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
+#TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
+#TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
+#TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
 METADATA_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                'resources/metadatadc')
 
@@ -22,12 +22,14 @@ metadata_client_port = 999
 def create_metadata_client_service(request, client):
     env = create_env(client)
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
+                     "tty": True,
+                     "networkMode": MANAGED_NETWORK,
                      "ports": [str(metadata_client_port) + ":22/tcp"],
                      "labels": {"io.rancher.scheduler.global": "true"}}
     service = client.create_service(name="metadataclient",
                                     stackId=env.id,
                                     launchConfig=launch_config)
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
     env = env.activateservices()
     service = client.wait_success(service, 300)
     assert service.state == "active"
@@ -42,7 +44,6 @@ def create_metadata_client_service(request, client):
 @if_compose_data_files
 def test_metadata_self_2016_07_29(
         client, rancher_cli_container):
-
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_1_2016_07_29.yml"
     rc_file = "rc_metadata_1_2016_07_29.yml"
@@ -55,7 +56,6 @@ def test_metadata_self_2016_07_29(
     assert service.metadata["test1"]["name"] == "t1name"
     assert service.metadata["test1"]["value"] == "t1value"
     assert service.metadata["test2"]["name"] == [1, 2, 3, 4]
-
     service_containers = get_service_container_list(client, service)
     port = 6002
     con_metadata = {}
@@ -769,7 +769,7 @@ def test_metadata_links(client, rancher_cli_container):
         assert metadata["links"] == linked_services
     delete_all(client, [env, linked_env])
 
-
+'''
 @if_compose_data_files
 def test_metadata_hostnet(client, rancher_cli_container):
 
@@ -797,7 +797,7 @@ def test_metadata_hostnet(client, rancher_cli_container):
         assert metadata["name"] == host.hostname
         assert metadata["uuid"] == host.uuid
     delete_all(client, [env])
-
+'''
 
 @if_compose_data_files
 def test_metadata_externalservice_ip(
@@ -848,7 +848,8 @@ def test_metadata_externalservice_cname(
         assert metadata["kind"] == "externalService"
     delete_all(client, [env])
 
-
+# Windows environment does not support.
+'''
 @if_compose_data_files
 def test_metadata_lb(client, rancher_cli_container):
 
@@ -935,6 +936,7 @@ def test_metadata_lb_updatetarget(
         assert metadata["kind"] == "loadBalancerService"
 
     delete_all(client, [env])
+'''
 
 
 def get_env_service_by_name(client, env_name, service_name):
@@ -953,13 +955,15 @@ def fetch_rancher_metadata(client, con, port, command, version=None):
     if version is None:
         version = "latest"
     rancher_metadata_cmd = \
-        "wget -O result.txt --header 'Accept: application/json' " + \
-        "http://rancher-metadata/"+version+"/" + command + "; cat result.txt"
+        "powershell -Command \"Invoke-WebRequest  -uri  " + \
+        "\'http://169.254.169.250/"+version+"/" + command + \
+        "\' -Headers @{\'accept\'=\'application/json\'} -OutFile result.txt ; cat result.txt\""
+
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(host.ipAddresses()[0].address,
-                username="root",
-                password="root",
+                username="rancher",
+                password="WWW.163.com",
                 port=port)
     print rancher_metadata_cmd
     stdin, stdout, stderr = ssh.exec_command(rancher_metadata_cmd)

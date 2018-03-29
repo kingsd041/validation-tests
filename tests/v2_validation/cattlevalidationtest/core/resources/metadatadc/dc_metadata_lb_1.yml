@@ -9,9 +9,9 @@ lb-2:
   stdin_open: true
 web1:
   tty: true
-  image: sangeetha/testnewhostrouting
+  image: kingsd/win-nodejs:5.0
   stdin_open: true
 web2:
   tty: true
-  image: sangeetha/testnewhostrouting
+  image: kingsd/win-nodejs:5.0
   stdin_open: true

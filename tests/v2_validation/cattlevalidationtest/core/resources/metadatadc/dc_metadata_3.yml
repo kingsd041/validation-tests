@@ -1,7 +1,8 @@
 test3:
+  net: transparent
   restart: always
   tty: true
-  image: sangeetha/testclient
+  image: kingsd/windowsssh:v0.11
   stdin_open: true
   labels:
     test1: value1
