@@ -1,10 +1,10 @@
 from common_fixtures import *  # NOQA
-from test_services_volumemount import validate_volume_mount
+#from test_services_volumemount import validate_volume_mount
 
-TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
-TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
-TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
-LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
+#TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
+#TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
+#TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
+#LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
 INSERVICE_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 'resources/inservicedc')
 
@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 if_compose_data_files = pytest.mark.skipif(
     not os.path.isdir(INSERVICE_SUBDIR),
     reason='Docker compose files directory location not set/ does not Exist')
-
 
 @if_compose_data_files
 def test_rancher_compose_inservice_upgrade_confirm(client,
@@ -28,12 +27,10 @@ def test_rancher_compose_inservice_upgrade_confirm(client,
     # Create an stack using up
     stack, service = create_stack_using_rancher_cli(
         client, stack_name, "test1", INSERVICE_SUBDIR, dc_file, rc_file)
-
     check_config_for_service(client, service, {"test1": "value1"}, 1)
 
     # Upgrade stack using up --upgrade
     service = upgrade_stack(client, stack_name, service, dc_file_upgrade)
-
     check_config_for_service(client, service, {"test1": "value1"}, 0)
     check_config_for_service(client, service, {"test1": "value2"}, 1)
     # Check for default settings
@@ -151,7 +148,6 @@ def test_rancher_compose_inservice_upgrade_sk_only_primary(
     # Upgrade stack using up --upgrade
     service = upgrade_stack(client, stack_name, service, dc_file_upgrade,
                             upgrade_option=upgrade_option)
-
     check_config_for_service_sidekick(
         client, service, stack_name+FIELD_SEPARATOR+"test1",
         {"test1": "value1"}, 0)
@@ -224,7 +220,6 @@ def test_rancher_compose_inservice_upgrade_sk_only_primary_rollback(
     # Rollback
     service = rollback_upgrade_stack(
         client, stack_name, service, dc_file_upgrade)
-
     check_config_for_service_sidekick(
         client, service, stack_name+FIELD_SEPARATOR+"test1",
         {"test1": "value1"}, 1)
@@ -623,7 +618,8 @@ def test_rancher_compose_inservice_upgrade_sk_all_rollback(
     assert len(container_list) == 0
     delete_all(client, [stack])
 
-
+# The Windows environment does not support volume and retainip.
+'''
 @if_compose_data_files
 def test_rancher_compose_inservice_upgrade_volume_mount_only_primary(
         client, rancher_cli_container, socat_containers):
@@ -1058,7 +1054,6 @@ def test_rancher_compose_inservice_upgrade_confirm_retainip(
             containers[0].primaryIpAddress
         containerips_before_upgrade[container_name+"id"] = \
             containers[0].externalId
-
     check_config_for_service(client, service, {"test1": "value1"}, 1)
 
     # Upgrade stack using up --upgrade
@@ -1302,7 +1297,7 @@ def test_rancher_compose_inservice_upgrade_retainip_during_upgrade_rollback(
             == containers[0].externalId
 
     delete_all(client, [stack])
-
+'''
 
 @if_compose_data_files
 def test_rancher_compose_inservice_upgrade_remove_sk(
@@ -1607,7 +1602,6 @@ def test_rancher_compose_inservice_upgrade_add_sk_rollback(
     assert len(container_list) == 0
     delete_all(client, [stack])
 
-
 @if_compose_data_files
 def test_rancher_compose_upgrade_with_ports_confirm(
         client, rancher_cli_container):
@@ -1801,7 +1795,7 @@ def confirm_upgrade_stack(client, stack_name, service, docker_compose):
 def rollback_upgrade_stack(client, stack_name, service, docker_compose):
     launch_rancher_cli_from_file(
         client, INSERVICE_SUBDIR, stack_name,
-        "up --rollback -d", "Started",
+        "up --rollback -d", "Starting",
         docker_compose)
     service = client.reload(service)
     assert service.state == "active"

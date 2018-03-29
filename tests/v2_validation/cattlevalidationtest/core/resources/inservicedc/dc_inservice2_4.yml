@@ -1,14 +1,14 @@
 sk2:
   restart: always
   tty: true
-  image: sangeetha/testnewhostrouting
+  image: kingsd/win-nodejs:5.0
   stdin_open: true
   labels:
     testsk2: value2
 sk1:
   restart: always
   tty: true
-  image: sangeetha/testlbsd
+  image: kingsd/win-nginx:v0.4
   stdin_open: true
   labels:
     testsk1: value2
@@ -18,5 +18,5 @@ test1:
     io.rancher.sidekicks: sk1,sk2
     test1: value1
   tty: true
-  image: sangeetha/testlbsd
+  image: kingsd/win-nginx:v0.4
   stdin_open: true

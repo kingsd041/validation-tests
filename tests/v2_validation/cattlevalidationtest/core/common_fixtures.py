@@ -507,7 +507,7 @@ def delete_all(client, items):
         client.delete(i)
         wait_for.append(client.reload(i))
 
-    wait_all_success(client, items, timeout=180)
+    wait_all_success(client, items, timeout=300)
 
 
 def delete_by_id(self, type, id):
@@ -3507,22 +3507,31 @@ def execute_rancher_cli(client, stack_name, command,
         password="WWW.163.com", port=int(rancher_cli_con["port"]))
     cmd = powershell_cmd+cmd1+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6+cmd7
     print "Final Command \n" + cmd
+
     stdin, stdout, stderr = ssh.exec_command(cmd, timeout=timeout)
+    if "rollback" in command or "up --upgrade -d" in command:
+        timeout = 300
+        endtime = time.time() + timeout
+        while not stdout.channel.eof_received:
+            time.sleep(1)
+            if time.time() > endtime:
+                stdout.channel.close()
+                break
     response = stdout.readlines()
 
-    return response
 
+    return response
 
 def launch_rancher_cli_from_file(client, subdir, env_name, command,
                                  expected_response, docker_compose=None,
                                  rancher_compose=None):
     if docker_compose is not None:
-        docker_compose = readDataFile(subdir, docker_compose).replace("\r","").replace("\n","`n").replace(" ","` ")
+        docker_compose = readDataFile(subdir, docker_compose).replace("\r","").replace("\n","`n").replace(" ","` ").replace(",","`,")
     if rancher_compose is not None:
-        rancher_compose = readDataFile(subdir, rancher_compose).replace("\r","").replace("\n","`n").replace(" ","` ")
+        rancher_compose = readDataFile(subdir, rancher_compose).replace("\r","").replace("\n","`n").replace(" ","` ").replace(",","`,")
     cli_response = execute_rancher_cli(client, env_name, command,
-                                       docker_compose, rancher_compose,
-                                       timeout=150)
+                                        docker_compose, rancher_compose,
+                                        timeout=400)
     print "Obtained Response: " + str(cli_response)
     print "Expected Response: " + str(expected_response)
     found = False

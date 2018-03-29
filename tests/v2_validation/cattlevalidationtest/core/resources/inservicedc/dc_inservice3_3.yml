@@ -1,5 +1,5 @@
 sk1:
-  image: sangeetha/testnewhostrouting
+  image: kingsd/win-nodejs:5.0
   volumes_from:
   - sk2
   labels:
@@ -8,10 +8,10 @@ test1:
   labels:
     io.rancher.sidekicks: sk1,sk2
     test1: value1
-  image: sangeetha/testclient
+  image: kingsd/windowsssh:v0.11
   volumes_from:
   - sk1
 sk2:
-  image: sangeetha/testlbsd:latest
+  image: kingsd/win-nginx:v0.4
   labels:
     testsk2: value1

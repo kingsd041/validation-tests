@@ -1,7 +1,7 @@
 sk1:
   restart: always
   tty: true
-  image: sangeetha/testlbsd
+  image: kingsd/win-nginx:v0.4
   stdin_open: true
   labels:
     testsk1: value2
@@ -11,5 +11,5 @@ test1:
     io.rancher.sidekicks: sk1
     test1: value2
   tty: true
-  image: sangeetha/testlbsd
+  image: kingsd/win-nginx:v0.4
   stdin_open: true
