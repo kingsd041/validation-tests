@@ -188,6 +188,7 @@ def test_selectorLink_lbservice(client, socat_containers):
     delete_all(client, [env])
 '''
 
+
 def test_selectorLink_dnsservice(client):
     port = "4002"
 
@@ -691,6 +692,7 @@ def test_selectorContainer_no_image_with_lb(
     delete_all(client, [env])
 '''
 
+
 def test_selectorContainer_for_service_reconciliation_on_stop(
         client):
 
@@ -892,7 +894,7 @@ def test_selectorLink_in(client):
                          "networkMode": MANAGED_NETWORK,
                          "isolation": isolation,
                          "stdinOpen": True,
-                         "tty": True,}
+                         "tty": True}
 
     env, service = \
         create_env_with_svc_options(
@@ -908,7 +910,7 @@ def test_selectorLink_notin(client):
                          "networkMode": MANAGED_NETWORK,
                          "isolation": isolation,
                          "stdinOpen": True,
-                         "tty": True,}
+                         "tty": True}
 
     env, service = \
         create_env_with_svc_options(
@@ -923,7 +925,7 @@ def test_selectorLink_noteq(client):
                          "networkMode": MANAGED_NETWORK,
                          "isolation": isolation,
                          "stdinOpen": True,
-                         "tty": True,}
+                         "tty": True}
 
     env, service = \
         create_env_with_svc_options(
@@ -939,7 +941,7 @@ def test_selectorLink_name_no_value(client):
                          "networkMode": MANAGED_NETWORK,
                          "isolation": isolation,
                          "stdinOpen": True,
-                         "tty": True,}
+                         "tty": True}
 
     env, service = \
         create_env_with_svc_options(
@@ -956,7 +958,7 @@ def test_selectorLink_multiple(client):
                          "networkMode": MANAGED_NETWORK,
                          "isolation": isolation,
                          "stdinOpen": True,
-                         "tty": True,}
+                         "tty": True}
 
     env, service = \
         create_env_with_svc_options(
