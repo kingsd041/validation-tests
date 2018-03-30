@@ -1598,12 +1598,15 @@ def rancher_compose_container(admin_client, client, request):
 
 def launch_rancher_compose(client, env):
     compose_configs = env.exportconfig()
-    docker_compose = compose_configs["dockerComposeConfig"].\
-                     replace("\r", "").\
-                     replace("\n", "`n").\
-                     replace(" ", "` ")
-    rancher_compose = compose_configs["rancherComposeConfig"]\
-                     .replace("\r", "").replace("\n", "`n").replace(" ", "` ")
+    docker_compose = \
+        compose_configs["dockerComposeConfig"]\
+        .replace("\r", "")\
+        .replace("\n", "`n")\
+        .replace(" ", "` ")
+    rancher_compose = \
+        compose_configs["rancherComposeConfig"]\
+        .replace("\r", "").replace("\n", "`n")\
+        .replace(" ", "` ")
     response = execute_rancher_cli(client, env.name + "rancher", "up -d",
                                    docker_compose, rancher_compose)
     expected_resp = "Creating stack"
