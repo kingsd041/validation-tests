@@ -14,8 +14,6 @@ import base64
 import jinja2
 import docker
 
-
-
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -845,8 +843,6 @@ def create_socat_containers(client):
     time.sleep(10)
 
 
-
-
 def get_docker_client(host):
     ip = host.ipAddresses()[0].address
     port = '2375'
@@ -1008,6 +1004,7 @@ def validate_exposed_port(client, service, public_port):
             response = get_http_response(con_host, port, "/service.html")
             assert response.lower() == con.externalId[:12]
 
+
 def validate_exposed_port_and_container_link(client, con, link_name,
                                              link_port, exposed_port):
     time.sleep(sleep_interval)
@@ -1021,7 +1018,7 @@ def validate_exposed_port_and_container_link(client, con, link_name,
     host = con.hosts[0]
     docker_client = get_docker_client(host)
     inspect = docker_client.inspect_container(con.externalId)
-    
+
     response = inspect["Config"]["Env"]
     logger.info(response)
     address = None
@@ -1039,7 +1036,7 @@ def validate_exposed_port_and_container_link(client, con, link_name,
     logger.info(address)
     logger.info(port)
     assert address and port is not None
-    
+
     # Validate port mapping
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -1328,7 +1325,8 @@ def validate_linked_service(admin_client, service, consumed_services,
             if exclude_instance is not None:
                 expected_entries_dig = expected_entries_dig - 1
             response_transcript = response[:]
-            [response_transcript.remove(res) for res in response if res == '\r\n']
+            [response_transcript.remove(res)
+                for res in response if res == '\r\n']
             assert len(response_transcript) == expected_entries_dig
 
             for resp in response_transcript:
@@ -1408,7 +1406,8 @@ def validate_dns_service(admin_client, service, consumed_services,
                     password="WWW.163.com", port=int(exposed_port))
 
         # Validate link containers
-        cmd = "powershell -Command Invoke-WebRequest -uri  http://" + dnsname + \
+        cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
+              dnsname + \
               ":80/name.html -OutFile result.txt;cat result.txt"
         logger.info(cmd)
 
@@ -1478,7 +1477,8 @@ def validate_external_service(admin_client, service, ext_services,
                 ext_service_name += fqdn
             # Validate link containers
             cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
-                  ext_service_name + ":80/name.html -OutFile result.txt;cat result.txt"
+                  ext_service_name + \
+                  ":80/name.html -OutFile result.txt;cat result.txt"
             print cmd
 
             stdin, stdout, stderr = ssh.exec_command(cmd)
@@ -1491,7 +1491,7 @@ def validate_external_service(admin_client, service, ext_services,
 
             # Validate DNS resolution using dig
             cmd = "powershell -Command Resolve-DnsName " + ext_service_name + \
-            " | Select IP4Address | Format-Wide -Column 1"
+                  " | Select IP4Address | Format-Wide -Column 1"
             print cmd
 
             stdin, stdout, stderr = ssh.exec_command(cmd)
@@ -1500,7 +1500,8 @@ def validate_external_service(admin_client, service, ext_services,
             print "Actual dig Response" + str(response)
 
             response_transcript = response[:]
-            [response_transcript.remove(res) for res in response if res == '\r\n']
+            [response_transcript.remove(res)
+                for res in response if res == '\r\n']
             expected_entries_dig = len(container_list)
             if exclude_instance is not None:
                 expected_entries_dig = expected_entries_dig - 1
@@ -1552,12 +1553,10 @@ def rancher_compose_container(admin_client, client, request):
         os.environ.get('RANCHER_COMPOSE_URL', default_rancher_compose_url)
     compose_file = rancher_compose_url.split("/")[-1]
 
-    #cmd1 = "wget " + rancher_compose_url
-    #cmd2 = "tar xvf " + compose_file
     cmd1 = "powershell -Command Invoke-WebRequest -uri " + \
-            rancher_compose_url + " -OutFile " + compose_file
+           rancher_compose_url + " -OutFile " + compose_file
     cmd2 = "Expand-Archive -Path " + compose_file + \
-            " -DestinationPath rancher-compose"
+           " -DestinationPath rancher-compose"
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
     assert len(hosts) > 0
@@ -1599,8 +1598,12 @@ def rancher_compose_container(admin_client, client, request):
 
 def launch_rancher_compose(client, env):
     compose_configs = env.exportconfig()
-    docker_compose = compose_configs["dockerComposeConfig"].replace("\r","").replace("\n","`n").replace(" ","` ")
-    rancher_compose = compose_configs["rancherComposeConfig"].replace("\r","").replace("\n","`n").replace(" ","` ")
+    docker_compose = compose_configs["dockerComposeConfig"].\
+                     replace("\r", "").\
+                     replace("\n", "`n").\
+                     replace(" ", "` ")
+    rancher_compose = compose_configs["rancherComposeConfig"]\
+                     .replace("\r", "").replace("\n", "`n").replace(" ", "` ")
     response = execute_rancher_cli(client, env.name + "rancher", "up -d",
                                    docker_compose, rancher_compose)
     expected_resp = "Creating stack"
@@ -1641,9 +1644,12 @@ def execute_rancher_compose(client, env_name, docker_compose,
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(
-        rancher_compose_con["host"].ipAddresses()[0].address, username="rancher",
-        password="WWW.163.com", port=int(rancher_compose_con["port"]))
-    cmd = powershell_cmd+cmd1+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd41+";"+cmd5+";"+cmd6
+        rancher_compose_con["host"].ipAddresses()[0].address,
+        username="rancher", password="WWW.163.com",
+        port=int(rancher_compose_con["port"]))
+    cmd = powershell_cmd + cmd1 + ";" + cmd2 + ";" + cmd3 + \
+        ";" + cmd4 + ";" + cmd41 + ";" + cmd5 + ";" + cmd6
+
     print cmd
     stdin, stdout, stderr = ssh.exec_command(cmd, timeout=timeout)
     response = stderr.readlines()
@@ -1658,9 +1664,15 @@ def execute_rancher_compose(client, env_name, docker_compose,
 def launch_rancher_compose_from_file(client, subdir, docker_compose,
                                      env_name, command, response,
                                      rancher_compose=None):
-    docker_compose = readDataFile(subdir, docker_compose).replace("\r","").replace("\n","`n").replace(" ","` ")
+    docker_compose = readDataFile(subdir, docker_compose)\
+                     .replace("\r", "")\
+                     .replace("\n", "`n")\
+                     .replace(" ", "` ")
     if rancher_compose is not None:
-        rancher_compose = readDataFile(subdir, rancher_compose).replace("\r","").replace("\n","`n").replace(" ","` ")
+        rancher_compose = readDataFile(subdir, rancher_compose)\
+                          .replace("\r", "")\
+                          .replace("\n", "`n")\
+                          .replace(" ", "` ")
     execute_rancher_compose(client, env_name, docker_compose,
                             rancher_compose, command, response)
 
@@ -1830,9 +1842,8 @@ def create_env_with_2_svc(client, scale_svc, scale_consumed_svc, port):
                          "ports": [port+":22/tcp"]}
 
     launch_config_consumed_svc = {"imageUuid": WEB_IMAGE_UUID,
-                         "networkMode": MANAGED_NETWORK,
-                         "isolation": isolation,                    
-                         }
+                                  "networkMode": MANAGED_NETWORK,
+                                  "isolation": isolation}
 
     # Create Environment
     env = create_env(client)
@@ -1934,7 +1945,7 @@ def create_env_with_ext_svc(client, scale_svc, port, hostname=False):
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
                          "tty": True,
                          "networkMode": MANAGED_NETWORK,
-                         "isolation": isolation,    
+                         "isolation": isolation,
                          "ports": [port+":22/tcp"]}
 
     # Create Environment
@@ -3425,12 +3436,10 @@ def rancher_cli_container(admin_client, client, request):
         os.environ.get('RANCHER_CLI_URL', default_rancher_cli_url)
 
     rancher_cli_file = rancher_cli_url.split("/")[-1]
-    #cmd1 = "powershell -Command Invoke-WebRequest -uri " + rancher_cli_url + " -OutFile " + rancher_cli_file
-    cmd1 = "powershell -Command Invoke-WebRequest -uri " + \
-            rancher_cli_url + " -OutFile " + rancher_cli_file
-    #cmd2 = "Expand-Archive -Path " + rancher_cli_file
-    cmd2 = "Expand-Archive -Path " + rancher_cli_file + \
-            " -DestinationPath rancher-cli"
+    cmd1 = "powershell -Command Invoke-WebRequest -uri " \
+           + rancher_cli_url + " -OutFile " + rancher_cli_file
+    cmd2 = "Expand-Archive -Path " + rancher_cli_file \
+           + " -DestinationPath rancher-cli"
 
     print cmd2
 
@@ -3519,20 +3528,27 @@ def execute_rancher_cli(client, stack_name, command,
                 stdout.channel.close()
                 break
     response = stdout.readlines()
-
-
     return response
+
 
 def launch_rancher_cli_from_file(client, subdir, env_name, command,
                                  expected_response, docker_compose=None,
                                  rancher_compose=None):
     if docker_compose is not None:
-        docker_compose = readDataFile(subdir, docker_compose).replace("\r","").replace("\n","`n").replace(" ","` ").replace(",","`,")
+        docker_compose = readDataFile(subdir, docker_compose)\
+                                      .replace("\r", "")\
+                                      .replace("\n", "`n")\
+                                      .replace(" ", "` ")\
+                                      .replace(",", "`,")
     if rancher_compose is not None:
-        rancher_compose = readDataFile(subdir, rancher_compose).replace("\r","").replace("\n","`n").replace(" ","` ").replace(",","`,")
+        rancher_compose = readDataFile(subdir, rancher_compose)\
+                                       .replace("\r",  "")\
+                                       .replace("\n", "`n")\
+                                       .replace(" ", "` ")\
+                                       .replace(",", "`,")
     cli_response = execute_rancher_cli(client, env_name, command,
-                                        docker_compose, rancher_compose,
-                                        timeout=400)
+                                       docker_compose, rancher_compose,
+                                       timeout=400)
     print "Obtained Response: " + str(cli_response)
     print "Expected Response: " + str(expected_response)
     found = False
