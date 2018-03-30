@@ -14,23 +14,23 @@ def test_container_run_with_options_1(client, test_name):
     assert len(hosts) > 0
     host = hosts[0]
 
-    #volume_in_host = "/test/container"
-    #volume_in_container = "/test/vol1"
-    #docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
+    # volume_in_host = "/test/container"
+    # volume_in_container = "/test/vol1"
+    # docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
 
     env_var = {"name1": "value1"}
     host_name = "host1"
-    domain_name = "abc.com"
-    #dns_name = ["test.com"]
-    #dns_search = ["8.8.8.8"]
-    #cap_add = ["CHOWN"]
-    #cap_drop = ["KILL"]
-    #user = "root"
+    # domain_name = "abc.com"
+    # dns_name = ["test.com"]
+    # dns_search = ["8.8.8.8"]
+    # cap_add = ["CHOWN"]
+    # cap_drop = ["KILL"]
+    # user = "root"
     restart_policy = {"maximumRetryCount": 5, "name": u"on-failure"}
-    #memory = 16000000
-    #memory_swap = 16000000
-    #cpu_set = "0"
-    #cpu_shares = 400
+    # memory = 16000000
+    # memory_swap = 16000000
+    # cpu_set = "0"
+    # cpu_shares = 400
     command = ["powershell", "sleep", "450"]
 
     # Create a container to link the data volume of the container for
@@ -59,7 +59,7 @@ def test_container_run_with_options_1(client, test_name):
                                 hostname=host_name,
                                 stdinOpen=False,
                                 tty=False,
-                                #user=user,
+                                # user=user,
                                 restartPolicy=restart_policy,
                                 command=command
                                 )
@@ -69,28 +69,28 @@ def test_container_run_with_options_1(client, test_name):
     inspect = docker_client.inspect_container(c.externalId)
     print inspect
 
-    #dns_name.append(RANCHER_DNS_SERVER)
-    #dns_search.append(RANCHER_DNS_SEARCH)
+    # dns_name.append(RANCHER_DNS_SERVER)
+    # dns_search.append(RANCHER_DNS_SEARCH)
 
-    #assert docker_vol_value in inspect["HostConfig"]["Binds"]
-    #assert inspect["HostConfig"]["VolumesFrom"] == [docker_vol_from_value]
+    # assert docker_vol_value in inspect["HostConfig"]["Binds"]
+    # assert inspect["HostConfig"]["VolumesFrom"] == [docker_vol_from_value]
     assert inspect["HostConfig"]["PublishAllPorts"] is False
     assert inspect["HostConfig"]["Privileged"] is False
     assert inspect["Config"]["OpenStdin"] is False
     assert inspect["Config"]["Tty"] is False
-    #assert inspect["HostConfig"]["Dns"] == dns_name
-    #assert inspect["HostConfig"]["DnsSearch"] == dns_search
+    # assert inspect["HostConfig"]["Dns"] == dns_name
+    # assert inspect["HostConfig"]["DnsSearch"] == dns_search
     assert inspect["Config"]["Hostname"] == host_name
-    #assert inspect["Config"]["Domainname"] == domain_name
-    #assert inspect["Config"]["User"] == user
-    #assert inspect["HostConfig"]["CapAdd"] == cap_add
-    #assert inspect["HostConfig"]["CapDrop"] == cap_drop
-    #assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
+    # assert inspect["Config"]["Domainname"] == domain_name
+    # assert inspect["Config"]["User"] == user
+    # assert inspect["HostConfig"]["CapAdd"] == cap_add
+    # assert inspect["HostConfig"]["CapDrop"] == cap_drop
+    # assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
     assert inspect["HostConfig"]["RestartPolicy"]["Name"] == u"on-failure"
     assert inspect["HostConfig"]["RestartPolicy"]["MaximumRetryCount"] == 5
 
     assert inspect["Config"]["Cmd"] == command
-    #assert inspect["HostConfig"]["Memory"] == memory
+    # assert inspect["HostConfig"]["Memory"] == memory
     assert "name1=value1" in inspect["Config"]["Env"]
     delete_all(client, [c])
 
@@ -106,7 +106,7 @@ def test_container_run_with_options_2(client, test_name):
                                 imageUuid=TEST_IMAGE_UUID,
                                 requestedHostId=host.id,
                                 publishAllPorts=True,
-                                #privileged=True,
+                                # privileged=True,
                                 stdinOpen=True,
                                 tty=True,
                                 )
@@ -115,8 +115,8 @@ def test_container_run_with_options_2(client, test_name):
     docker_client = get_docker_client(host)
     inspect = docker_client.inspect_container(c.externalId)
 
-    #assert inspect["HostConfig"]["PublishAllPorts"]
-    #assert inspect["HostConfig"]["Privileged"]
+    # assert inspect["HostConfig"]["PublishAllPorts"]
+    # assert inspect["HostConfig"]["Privileged"]
     assert inspect["Config"]["OpenStdin"]
     assert inspect["Config"]["Tty"]
 
