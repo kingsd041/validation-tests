@@ -1,6 +1,7 @@
 from common_fixtures import *  # NOQA
 from cattle import ApiError
-#from test_services_lb_balancer import create_environment_with_balancer_services
+# from test_services_lb_balancer\
+#     import create_environment_with_balancer_services
 
 TEST_SERVICE_OPT_IMAGE = 'kingsd/win-nodejs'
 TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':5.0'
@@ -76,58 +77,58 @@ def create_env_and_svc_activate_launch_config(
 
 def test_services_docker_options(client):
     '''
-    #Because windows does not support valume,dns,cap, so commented out
+    # Because windows does not support valume,dns,cap, so commented out
     '''
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
 
     con_host = hosts[0]
 
-    #vol_container = client.create_container(imageUuid=TEST_IMAGE_UUID,
+    # vol_container = client.create_container(imageUuid=TEST_IMAGE_UUID,
     #                                        name=random_str(),
     #                                        requestedHostId=con_host.id
     #                                        )
 
-    #vol_container = client.wait_success(vol_container)
+    # vol_container = client.wait_success(vol_container)
 
-    #volume_in_host = "/test/container"
-    #volume_in_container = "/test/vol1"
-    #docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
+    # volume_in_host = "/test/container"
+    # volume_in_container = "/test/vol1"
+    # docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
 
-    #cap_add = ["CHOWN"]
-    #cap_drop = ["KILL"]
+    # cap_add = ["CHOWN"]
+    # cap_drop = ["KILL"]
     restart_policy = {"maximumRetryCount": 10, "name": "on-failure"}
-    #dns_search = ['1.2.3.4']
-    #dns_name = ['1.2.3.4']
+    # dns_search = ['1.2.3.4']
+    # dns_name = ['1.2.3.4']
     domain_name = "rancher.io"
     host_name = "test"
-    #user = "root"
+    # user = "root"
     command = ["powershell", "sleep", "9000"]
     env_var = {"TEST_FILE": "C:\\testpath.conf"}
-    #memory = 8000000
-    #cpu_set = "0"
-    #cpu_shares = 400
+    # memory = 8000000
+    # cpu_set = "0"
+    # cpu_shares = 400
 
     launch_config = {"imageUuid": TEST_SERVICE_OPT_IMAGE_UUID,
                      "command": command,
-                     #"dataVolumes": [docker_vol_value],
-                     #"dataVolumesFrom": [vol_container.id],
+                     # "dataVolumes": [docker_vol_value],
+                     # "dataVolumesFrom": [vol_container.id],
                      "environment": env_var,
-                     #"capAdd": cap_add,
-                     #"capDrop": cap_drop,
-                     #"dnsSearch": dns_search,
-                     #"dns": dns_name,
-                     #"privileged": True,
+                     # "capAdd": cap_add,
+                     # "capDrop": cap_drop,
+                     # "dnsSearch": dns_search,
+                     # "dns": dns_name,
+                     # "privileged": True,
                      "domainName": domain_name,
                      "stdinOpen": True,
                      "tty": True,
-                     #"memory": memory,
-                     #"cpuSet": cpu_set,
-                     #"cpuShares": cpu_shares,
+                     # "memory": memory,
+                     # "cpuSet": cpu_set,
+                     # "cpuShares": cpu_shares,
                      "restartPolicy": restart_policy,
                      "directory": "C:\\",
                      "hostname": host_name,
-                     #"user": user,
+                     # "user": user,
                      "requestedHostId": con_host.id
                      }
 
@@ -144,115 +145,113 @@ def test_services_docker_options(client):
 
     container_list = get_service_container_list(client, service)
 
-    #dns_name.append(RANCHER_DNS_SERVER)
-    #dns_search.append(env.name+"."+RANCHER_DNS_SEARCH)
-    #dns_search.append(service.name+"."+env.name+"."+RANCHER_DNS_SEARCH)
-    #dns_search.append(RANCHER_DNS_SEARCH)
+    # dns_name.append(RANCHER_DNS_SERVER)
+    # dns_search.append(env.name+"."+RANCHER_DNS_SEARCH)
+    # dns_search.append(service.name+"."+env.name+"."+RANCHER_DNS_SEARCH)
+    # dns_search.append(RANCHER_DNS_SEARCH)
 
     for c in container_list:
         docker_client = get_docker_client(c.hosts[0])
         inspect = docker_client.inspect_container(c.externalId)
 
-        #assert docker_vol_value in inspect["HostConfig"]["Binds"]
-        #assert inspect["HostConfig"]["VolumesFrom"] == \
-        #    [vol_container.externalId]
+        # assert docker_vol_value in inspect["HostConfig"]["Binds"]
+        # assert inspect["HostConfig"]["VolumesFrom"] == \
+        #     [vol_container.externalId]
         assert inspect["HostConfig"]["PublishAllPorts"] is False
-        #assert inspect["HostConfig"]["Privileged"] is True
+        # assert inspect["HostConfig"]["Privileged"] is True
         assert inspect["Config"]["OpenStdin"] is True
         assert inspect["Config"]["Tty"] is True
-        #assert inspect["HostConfig"]["Dns"] == dns_name
-        #assert inspect["HostConfig"]["DnsSearch"] == dns_search
+        # assert inspect["HostConfig"]["Dns"] == dns_name
+        # assert inspect["HostConfig"]["DnsSearch"] == dns_search
         assert inspect["Config"]["Hostname"] == host_name
         assert inspect["Config"]["Domainname"] == domain_name
-        #assert inspect["Config"]["User"] == user
-        #assert inspect["HostConfig"]["CapAdd"] == cap_add
-        #assert inspect["HostConfig"]["CapDrop"] == cap_drop
-        #assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
+        # assert inspect["Config"]["User"] == user
+        # assert inspect["HostConfig"]["CapAdd"] == cap_add
+        # assert inspect["HostConfig"]["CapDrop"] == cap_drop
+        # assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
 #       No support for restart
         assert inspect["HostConfig"]["RestartPolicy"]["Name"] == ""
         assert \
             inspect["HostConfig"]["RestartPolicy"]["MaximumRetryCount"] == 0
         assert inspect["Config"]["Cmd"] == command
-        #assert inspect["HostConfig"]["Memory"] == memory
+        # assert inspect["HostConfig"]["Memory"] == memory
         assert "TEST_FILE=C:\\testpath.conf" in inspect["Config"]["Env"]
-        #assert inspect["HostConfig"]["CpuShares"] == cpu_shares
+        # assert inspect["HostConfig"]["CpuShares"] == cpu_shares
 
     delete_all(client, [env])
-
-
 
 
 def test_services_docker_options_2(client):
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
     cpu_shares = 400
-    #ulimit = {"hard": 1024, "name": "cpu", "soft": 1024}
-    #ulimit_inspect = {"Hard": 1024, "Name": "cpu", "Soft": 1024}
+    # ulimit = {"hard": 1024, "name": "cpu", "soft": 1024}
+    # ulimit_inspect = {"Hard": 1024, "Name": "cpu", "Soft": 1024}
     ipcMode = "host"
-    #sysctls = {"net.ipv4.ip_forward": "1"}
-    #dev_opts = {
-    #    '/dev/null': {
-    #        'readIops': 2000,
-    #        'writeIops': 3000,
-    #        'readBps': 4000,
-    #        'writeBps': 200,
-    #    }
-    #}
+    # sysctls = {"net.ipv4.ip_forward": "1"}
+    # dev_opts = {
+    #     '/dev/null': {
+    #         'readIops': 2000,
+    #         'writeIops': 3000,
+    #         'readBps': 4000,
+    #         'writeBps': 200,
+    #     }
+    # }
     cpu_shares = 400
-    #blkio_weight = 1000
-    #cpu_period = 10000
+    # blkio_weight = 1000
+    # cpu_period = 10000
     cpu_quota = 20000
-    cpu_set = "0"
-    cpu_setmems = "0"
+    # cpu_set = "0"
+    # cpu_setmems = "0"
     dns_opt = ["abc"]
     group_add = ["root"]
-    kernel_memory = 6000000
-    #memory_reservation = 5000000
-    #memory_swap = -1
-    #memory_swappiness = 100
-    #oom_killdisable = True
+    # kernel_memory = 6000000
+    # memory_reservation = 5000000
+    # memory_swap = -1
+    # memory_swappiness = 100
+    # oom_killdisable = True
     oom_scoreadj = 100
-    #read_only = True
+    # read_only = True
     shm_size = 1024
     stop_signal = "SIGTERM"
-    #uts = "host"
+    # uts = "host"
 
-    #dev_opts_inspect = {u"Path": "/dev/null",
-    #                    u"Rate": 400}
-    #cgroup_parent = "xyz"
-    #extraHosts = ["host1:10.1.1.1", "host2:10.2.2.2"]
-    tmp_fs = {"/tmp": "rw"}
-    #security_opt = ["label=user:USER", "label=role:ROLE"]
+    # dev_opts_inspect = {u"Path": "/dev/null",
+    #                     u"Rate": 400}
+    # cgroup_parent = "xyz"
+    # extraHosts = ["host1:10.1.1.1", "host2:10.2.2.2"]
+    # tmp_fs = {"/tmp": "rw"}
+    # security_opt = ["label=user:USER", "label=role:ROLE"]
 
     launch_config = {"imageUuid": TEST_SERVICE_OPT_IMAGE_UUID,
-                     #"extraHosts": extraHosts,
-                     #"privileged": True,
+                     # "extraHosts": extraHosts,
+                     # "privileged": True,
                      "cpuShares": cpu_shares,
-                     #"blkioWeight": blkio_weight,
-                     #"blkioDeviceOptions": dev_opts,
-                     #"cgroupParent": cgroup_parent,
+                     # "blkioWeight": blkio_weight,
+                     # "blkioDeviceOptions": dev_opts,
+                     # "cgroupParent": cgroup_parent,
                      "cpuShares": cpu_shares,
-                     #"cpuPeriod": cpu_period,
+                     # "cpuPeriod": cpu_period,
                      "cpuQuota": cpu_quota,
-                     #"cpuSet": cpu_set,
-                     #"cpuSetMems": cpu_setmems,
+                     # "cpuSet": cpu_set,
+                     # "cpuSetMems": cpu_setmems,
                      "dnsOpt": dns_opt,
                      "groupAdd": group_add,
-                     #"kernelMemory": kernel_memory,
-                     #"memoryReservation": memory_reservation,
-                     #"memorySwap": memory_swap,
-                     #"memorySwappiness": memory_swappiness,
-                     #"oomKillDisable": oom_killdisable,
+                     # "kernelMemory": kernel_memory,
+                     # "memoryReservation": memory_reservation,
+                     # "memorySwap": memory_swap,
+                     # "memorySwappiness": memory_swappiness,
+                     # "oomKillDisable": oom_killdisable,
                      "oomScoreAdj": oom_scoreadj,
-                     #"readOnly": read_only,
-                     #"securityOpt": security_opt,
+                     # "readOnly": read_only,
+                     # "securityOpt": security_opt,
                      "shmSize": shm_size,
                      "stopSignal": stop_signal,
-                     #"sysctls": sysctls,
-                     #"tmpfs": tmp_fs,
-                     #"ulimits": [ulimit],
+                     # "sysctls": sysctls,
+                     # "tmpfs": tmp_fs,
+                     # "ulimits": [ulimit],
                      "ipcMode": ipcMode,
-                     #"uts": uts,
+                     # "uts": uts,
                      "requestedHostId": hosts[0].id
                      }
 
@@ -273,49 +272,48 @@ def test_services_docker_options_2(client):
         docker_client = get_docker_client(c.hosts[0])
         inspect = docker_client.inspect_container(c.externalId)
 
-        #assert inspect["HostConfig"]["ExtraHosts"] == extraHosts
-        #assert inspect["HostConfig"]["BlkioWeight"] == blkio_weight
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 4000
-        #assert \
+        # assert inspect["HostConfig"]["ExtraHosts"] == extraHosts
+        # assert inspect["HostConfig"]["BlkioWeight"] == blkio_weight
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 4000
+        # assert \
         #    inspect["HostConfig"]["BlkioDeviceReadBps"] == [dev_opts_inspect]
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 200
-        #assert \
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 200
+        # assert \
         #    inspect["HostConfig"]["BlkioDeviceWriteBps"] == [dev_opts_inspect]
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 2000
-        #assert \
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 2000
+        # assert \
         #    inspect["HostConfig"]["BlkioDeviceReadIOps"] == [dev_opts_inspect]
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 3000
-        #assert \
-        #    inspect["HostConfig"]["BlkioDeviceWriteIOps"] == [dev_opts_inspect]
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 3000
+        # assert \
+        #   inspect["HostConfig"]["BlkioDeviceWriteIOps"] == [dev_opts_inspect]
         assert inspect["HostConfig"]["CpuShares"] == cpu_shares
-        #assert inspect["HostConfig"]["CgroupParent"] == cgroup_parent
-        #assert inspect["HostConfig"]["CpuPeriod"] == cpu_period
+        # assert inspect["HostConfig"]["CgroupParent"] == cgroup_parent
+        # assert inspect["HostConfig"]["CpuPeriod"] == cpu_period
         assert inspect["HostConfig"]["CpuQuota"] == cpu_quota
-        #assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
-        #assert inspect["HostConfig"]["CpusetMems"] == cpu_setmems
-        #assert inspect["HostConfig"]["KernelMemory"] == kernel_memory
-        #assert inspect["HostConfig"]["MemoryReservation"] == memory_reservation
-        #assert inspect["HostConfig"]["MemorySwap"] == memory_swap
-        #assert inspect["HostConfig"]["MemorySwappiness"] == memory_swappiness
-        #assert inspect["HostConfig"]["OomKillDisable"]
+        # assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
+        # assert inspect["HostConfig"]["CpusetMems"] == cpu_setmems
+        # assert inspect["HostConfig"]["KernelMemory"] == kernel_memory
+        # assert \
+        #     inspect["HostConfig"]["MemoryReservation"] == memory_reservation
+        # assert inspect["HostConfig"]["MemorySwap"] == memory_swap
+        # assert inspect["HostConfig"]["MemorySwappiness"] == memory_swappiness
+        # assert inspect["HostConfig"]["OomKillDisable"]
         assert inspect["HostConfig"]["OomScoreAdj"] == oom_scoreadj
-        #assert inspect["HostConfig"]["ReadonlyRootfs"]
-        #assert inspect["HostConfig"]["SecurityOpt"] == security_opt
-        #assert inspect["HostConfig"]["Tmpfs"] == tmp_fs
+        # assert inspect["HostConfig"]["ReadonlyRootfs"]
+        # assert inspect["HostConfig"]["SecurityOpt"] == security_opt
+        # assert inspect["HostConfig"]["Tmpfs"] == tmp_fs
         assert inspect["HostConfig"]["ShmSize"] == shm_size
         assert inspect["Config"]["StopSignal"] == stop_signal
-        #assert inspect["HostConfig"]["Ulimits"] == [ulimit_inspect]
+        # assert inspect["HostConfig"]["Ulimits"] == [ulimit_inspect]
         assert inspect["HostConfig"]["IpcMode"] == ipcMode
-        #assert inspect["HostConfig"]["UTSMode"] == uts
+        # assert inspect["HostConfig"]["UTSMode"] == uts
         assert inspect["HostConfig"]["DnsOptions"] == dns_opt
         assert inspect["HostConfig"]["GroupAdd"] == group_add
     delete_all(client, [env])
-
-
 
 
 # Skip 2018-2-12
@@ -341,7 +339,7 @@ def test_services_port_and_link_options(client):
     link_container = client.wait_success(link_container)
 
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
-                    "networkMode": MANAGED_NETWORK,
+                     "networkMode": MANAGED_NETWORK,
                      "ports": [str(exposed_port)+":22/tcp"],
                      "stdinOpen": True,
                      "instanceLinks": {
@@ -419,7 +417,6 @@ def test_services_random_expose_port_exhaustrange(
 
     # Set random port range to 6 ports and exhaust 5 of them by creating a
     # service that has 5 random ports exposed
-    #pdb.set_trace()
     project = admin_client.list_project(name=PROJECT_NAME)[0]
     project = admin_client.update(
         project, servicesPortRange={"startPort": 65500, "endPort": 65505})
@@ -1438,6 +1435,7 @@ def test_service_with_healthcheck_container_tcp_unhealthy(
     delete_all(client, [env])
 '''
 
+
 @pytest.mark.skipif(True,
                     reason='Service names not editable from 1.6 release')
 def test_service_name_unique(client):
@@ -1527,6 +1525,7 @@ def test_service_retain_ip(client):
     assert ipAddress == new_ipAddress
     assert externalId != new_externalId
 '''
+
 
 def test_services_rolling_strategy(client):
     launch_config = {"imageUuid": SSH_IMAGE_UUID,
@@ -1633,6 +1632,7 @@ def test_insvc_upgrade_start_first(client):
     assert service.state == "upgrading"
     validate_lb_service(client, lb_service, port, [service])
 '''
+
 
 @if_container_refactoring
 def test_global_service(client):
