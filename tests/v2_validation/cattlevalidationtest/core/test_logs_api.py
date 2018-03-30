@@ -7,9 +7,10 @@ def get_logs(client):
     hosts = client.list_host(kind='docker', removed_null=True)
     assert len(hosts) > 0
     in_log = random_str()
-    #cmd = '/bin/bash -c "echo {}; sleep 2"'.format(in_log)
+    # cmd = '/bin/bash -c "echo {}; sleep 2"'.format(in_log)
     cmd = 'echo ' + in_log + '; sleep 2'
-    c = client.create_container(imageUuid=TEST_IMAGE_UUID, command=cmd, entryPoint='powershell')
+    c = client.create_container(imageUuid=TEST_IMAGE_UUID,
+                                command=cmd, entryPoint='powershell')
     c = client.wait_success(c)
     logs = c.logs()
     return logs, in_log, c
