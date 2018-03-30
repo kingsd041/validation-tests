@@ -15,6 +15,7 @@ if_compose_data_files = pytest.mark.skipif(
     not os.path.isdir(INSERVICE_SUBDIR),
     reason='Docker compose files directory location not set/ does not Exist')
 
+
 @if_compose_data_files
 def test_rancher_compose_inservice_upgrade_confirm(client,
                                                    rancher_cli_container):

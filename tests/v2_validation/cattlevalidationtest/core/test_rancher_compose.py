@@ -15,15 +15,15 @@ if_compose_data_files = pytest.mark.skipif(
 def test_rancher_compose_service(client,
                                  rancher_cli_container):
 
-    #vol_container = client.create_container(imageUuid=TEST_IMAGE_UUID,
-    #                                        name=random_str(),
-    #                                        labels={"c1": "vol"}
-    #                                        )
-    #vol_container = client.wait_success(vol_container)
+    # vol_container = client.create_container(imageUuid=TEST_IMAGE_UUID,
+    #                                         name=random_str(),
+    #                                         labels={"c1": "vol"}
+    #                                         )
+    # vol_container = client.wait_success(vol_container)
 
-    #volume_in_host = "/test/container"
-    #volume_in_container = "/test/vol1"
-    #docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
+    # volume_in_host = "/test/container"
+    # volume_in_container = "/test/vol1"
+    # docker_vol_value = volume_in_host + ":" + volume_in_container + ":ro"
 
     cap_add = ["CHOWN"]
     cap_drop = ["KILL"]
@@ -32,37 +32,37 @@ def test_rancher_compose_service(client,
     dns_name = ['1.2.3.4']
     domain_name = "rancher.io"
     host_name = "test"
-    user = "root"
-    command = ["sleep", "9000"]
+    # user = "root"
+    # command = ["sleep", "9000"]
     env_var = {"TEST_FILE": "/etc/testpath.conf"}
-    memory = 8000000
-    cpu_set = "0"
+    # memory = 8000000
+    # cpu_set = "0"
     cpu_shares = 400
     # Not including "dataVolumesFrom": [vol_container.id] since it is not
     # implemented yet
 
     launch_config = {"imageUuid": TEST_SERVICE_OPT_IMAGE_UUID,
-                     #"command": command,
-                     #"dataVolumes": [docker_vol_value],
+                     # "command": command,
+                     # "dataVolumes": [docker_vol_value],
                      "environment": env_var,
                      "capAdd": cap_add,
                      "capDrop": cap_drop,
                      "dnsSearch": dns_search,
                      "dns": dns_name,
-                     #"privileged": True,
+                     # "privileged": True,
                      "domainName": domain_name,
                      "stdinOpen": True,
                      "tty": True,
                      "memory": memory,
-                     #"cpuSet": cpu_set,
+                     # "cpuSet": cpu_set,
                      "cpuShares": cpu_shares,
                      "restartPolicy": restart_policy,
                      "directory": "/",
                      "hostname": host_name,
-                     #"user": user,
-                     #"labels":
-                     #    {"io.rancher.scheduler.affinity:container_label":
-                     #     "c1=vol"}
+                     # "user": user,
+                     # "labels":
+                     #     {"io.rancher.scheduler.affinity:container_label":
+                     #      "c1=vol"}
                      }
 
     scale = 1
@@ -93,29 +93,29 @@ def test_rancher_compose_service(client,
         docker_client = get_docker_client(c.hosts[0])
         inspect = docker_client.inspect_container(c.externalId)
 
-        #assert docker_vol_value in inspect["HostConfig"]["Binds"]
-#        assert inspect["HostConfig"]["VolumesFrom"] == \
-#            [vol_container.externalId]
+        # assert docker_vol_value in inspect["HostConfig"]["Binds"]
+        # assert inspect["HostConfig"]["VolumesFrom"] == \
+        #    [vol_container.externalId]
         assert inspect["HostConfig"]["PublishAllPorts"] is False
-        #assert inspect["HostConfig"]["Privileged"] is True
+        # assert inspect["HostConfig"]["Privileged"] is True
         assert inspect["Config"]["OpenStdin"] is True
         assert inspect["Config"]["Tty"] is True
-        #assert inspect["HostConfig"]["Dns"] == dns_name
-        #assert inspect["HostConfig"]["DnsSearch"] == dns_search
+        # assert inspect["HostConfig"]["Dns"] == dns_name
+        # assert inspect["HostConfig"]["DnsSearch"] == dns_search
         assert inspect["Config"]["Hostname"] == host_name
         assert inspect["Config"]["Domainname"] == domain_name
-        #assert inspect["Config"]["User"] == user
-        #assert inspect["HostConfig"]["CapAdd"] == cap_add
-        #assert inspect["HostConfig"]["CapDrop"] == cap_drop
-#        assert inspect["Config"]["Cpuset"] == cpu_set
-#       No support for restart
+        # assert inspect["Config"]["User"] == user
+        # assert inspect["HostConfig"]["CapAdd"] == cap_add
+        # assert inspect["HostConfig"]["CapDrop"] == cap_drop
+        # assert inspect["Config"]["Cpuset"] == cpu_set
+        # No support for restart
         assert inspect["HostConfig"]["RestartPolicy"]["Name"] == ""
         assert \
             inspect["HostConfig"]["RestartPolicy"]["MaximumRetryCount"] == 0
-        #assert inspect["Config"]["Cmd"] == command
-        #assert inspect["HostConfig"]["Memory"] == memory
+        # assert inspect["Config"]["Cmd"] == command
+        # assert inspect["HostConfig"]["Memory"] == memory
         assert "TEST_FILE=/etc/testpath.conf" in inspect["Config"]["Env"]
-        #assert inspect["HostConfig"]["CpuShares"] == cpu_shares
+        # assert inspect["HostConfig"]["CpuShares"] == cpu_shares
     delete_all(client, [env, rancher_env])
 
 
@@ -124,9 +124,9 @@ def test_rancher_compose_service_option_2(client,
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
     cpu_shares = 400
     ulimit = {"hard": 1024, "name": "cpu", "soft": 1024}
-    ulimit_inspect = {"Hard": 1024, "Name": "cpu", "Soft": 1024}
+    # ulimit_inspect = {"Hard": 1024, "Name": "cpu", "Soft": 1024}
     ipcMode = "host"
-    sysctls = {"net.ipv4.ip_forward": "1"}
+    # sysctls = {"net.ipv4.ip_forward": "1"}
     dev_opts = {
         '/dev/null': {
             'readIops': 2000,
@@ -139,8 +139,8 @@ def test_rancher_compose_service_option_2(client,
     blkio_weight = 1000
     cpu_period = 10000
     cpu_quota = 20000
-    cpu_set = "0"
-    cpu_setmems = "0"
+    # cpu_set = "0"
+    # cpu_setmems = "0"
     dns_opt = ["abc"]
     group_add = ["root"]
     kernel_memory = 6000000
@@ -149,22 +149,22 @@ def test_rancher_compose_service_option_2(client,
     memory_swappiness = 100
     oom_killdisable = True
     oom_scoreadj = 100
-    read_only = True
+    # read_only = True
     shm_size = 1024
     stop_signal = "SIGTERM"
     uts = "host"
     memory = 8000000
 
-    dev_opts_inspect = {u"Path": "/dev/null",
-                        u"Rate": 400}
+    # dev_opts_inspect = {u"Path": "/dev/null",
+    #                     u"Rate": 400}
     cgroup_parent = "xyz"
     extraHosts = ["host1:10.1.1.1", "host2:10.2.2.2"]
-    tmp_fs = {"/tmp": "rw"}
+    # tmp_fs = {"/tmp": "rw"}
     security_opt = ["label=user:USER", "label=role:ROLE"]
 
     launch_config = {"imageUuid": TEST_SERVICE_OPT_IMAGE_UUID,
                      "extraHosts": extraHosts,
-                     #"privileged": True,
+                     # "privileged": True,
                      "cpuShares": cpu_shares,
                      "blkioWeight": blkio_weight,
                      "blkioDeviceOptions": dev_opts,
@@ -172,8 +172,8 @@ def test_rancher_compose_service_option_2(client,
                      "cpuShares": cpu_shares,
                      "cpuPeriod": cpu_period,
                      "cpuQuota": cpu_quota,
-                     #"cpuSet": cpu_set,
-                     #"cpuSetMems": cpu_setmems,
+                     # "cpuSet": cpu_set,
+                     # "cpuSetMems": cpu_setmems,
                      "dnsOpt": dns_opt,
                      "groupAdd": group_add,
                      "kernelMemory": kernel_memory,
@@ -183,12 +183,12 @@ def test_rancher_compose_service_option_2(client,
                      "memorySwappiness": memory_swappiness,
                      "oomKillDisable": oom_killdisable,
                      "oomScoreAdj": oom_scoreadj,
-                     #"readOnly": read_only,
+                     # "readOnly": read_only,
                      "securityOpt": security_opt,
                      "shmSize": shm_size,
                      "stopSignal": stop_signal,
-                     #"sysctls": sysctls,
-                     #"tmpfs": tmp_fs,
+                     # "sysctls": sysctls,
+                     # "tmpfs": tmp_fs,
                      "ulimits": [ulimit],
                      "ipcMode": ipcMode,
                      "uts": uts,
@@ -222,49 +222,50 @@ def test_rancher_compose_service_option_2(client,
 
         # Windows environment does not support.
 
-        #assert inspect["HostConfig"]["ExtraHosts"] == extraHosts
-        #assert inspect["HostConfig"]["BlkioWeight"] == blkio_weight
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 4000
-        #assert \
-        #    inspect["HostConfig"]["BlkioDeviceReadBps"] == [dev_opts_inspect]
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 200
-        #assert \
-        #    inspect["HostConfig"]["BlkioDeviceWriteBps"] == [dev_opts_inspect]
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 2000
-        #assert \
-        #    inspect["HostConfig"]["BlkioDeviceReadIOps"] == [dev_opts_inspect]
-        #dev_opts_inspect["Path"] = "/dev/null"
-        #dev_opts_inspect["Rate"] = 3000
-        #assert \
-        #    inspect["HostConfig"]["BlkioDeviceWriteIOps"] == [dev_opts_inspect]
-        #assert inspect["HostConfig"]["CpuShares"] == cpu_shares
-        #assert inspect["HostConfig"]["CgroupParent"] == cgroup_parent
-        #assert inspect["HostConfig"]["CpuPeriod"] == cpu_period
-        #assert inspect["HostConfig"]["CpuQuota"] == cpu_quota
-        #assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
+        # assert inspect["HostConfig"]["ExtraHosts"] == extraHosts
+        # assert inspect["HostConfig"]["BlkioWeight"] == blkio_weight
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 4000
+        # assert \
+        #     inspect["HostConfig"]["BlkioDeviceReadBps"] == [dev_opts_inspect]
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 200
+        # assert \
+        #   inspect["HostConfig"]["BlkioDeviceWriteBps"] == [dev_opts_inspect]
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 2000
+        # assert \
+        #   inspect["HostConfig"]["BlkioDeviceReadIOps"] == [dev_opts_inspect]
+        # dev_opts_inspect["Path"] = "/dev/null"
+        # dev_opts_inspect["Rate"] = 3000
+        # assert \
+        #  inspect["HostConfig"]["BlkioDeviceWriteIOps"] == [dev_opts_inspect]
+        # assert inspect["HostConfig"]["CpuShares"] == cpu_shares
+        # assert inspect["HostConfig"]["CgroupParent"] == cgroup_parent
+        # assert inspect["HostConfig"]["CpuPeriod"] == cpu_period
+        # assert inspect["HostConfig"]["CpuQuota"] == cpu_quota
+        # assert inspect["HostConfig"]["CpusetCpus"] == cpu_set
         # Bug - 6700
         """
         assert inspect["HostConfig"]["CpusetMems"] == cpu_setmems
         assert inspect["HostConfig"]["KernelMemory"] == kernel_memory
         """
-        #assert inspect["HostConfig"]["MemoryReservation"] == memory_reservation
-        #assert inspect["HostConfig"]["MemorySwap"] == memory_swap
-        #assert inspect["HostConfig"]["MemorySwappiness"] == memory_swappiness
-        #assert inspect["HostConfig"]["OomKillDisable"]
-        #assert inspect["HostConfig"]["OomScoreAdj"] == oom_scoreadj
-        #assert inspect["HostConfig"]["ReadonlyRootfs"]
-        #assert inspect["HostConfig"]["SecurityOpt"] == security_opt
-        #assert inspect["HostConfig"]["Tmpfs"] == tmp_fs
-        #assert inspect["HostConfig"]["ShmSize"] == shm_size
+        # assert \
+        #     inspect["HostConfig"]["MemoryReservation"] == memory_reservation
+        # assert inspect["HostConfig"]["MemorySwap"] == memory_swap
+        # assert inspect["HostConfig"]["MemorySwappiness"] == memory_swappiness
+        # assert inspect["HostConfig"]["OomKillDisable"]
+        # assert inspect["HostConfig"]["OomScoreAdj"] == oom_scoreadj
+        # assert inspect["HostConfig"]["ReadonlyRootfs"]
+        # assert inspect["HostConfig"]["SecurityOpt"] == security_opt
+        # assert inspect["HostConfig"]["Tmpfs"] == tmp_fs
+        # assert inspect["HostConfig"]["ShmSize"] == shm_size
         assert inspect["Config"]["StopSignal"] == stop_signal
-        #assert inspect["HostConfig"]["Ulimits"] == [ulimit_inspect]
-        #assert inspect["HostConfig"]["IpcMode"] == ipcMode
-        #assert inspect["HostConfig"]["UTSMode"] == uts
-        #assert inspect["HostConfig"]["DnsOptions"] == dns_opt
-        #assert inspect["HostConfig"]["GroupAdd"] == group_add
+        # assert inspect["HostConfig"]["Ulimits"] == [ulimit_inspect]
+        # assert inspect["HostConfig"]["IpcMode"] == ipcMode
+        # assert inspect["HostConfig"]["UTSMode"] == uts
+        # assert inspect["HostConfig"]["DnsOptions"] == dns_opt
+        # assert inspect["HostConfig"]["GroupAdd"] == group_add
     delete_all(client, [env])
 
 
@@ -454,6 +455,7 @@ def test_rancher_compose_lbservice_internal(client,
 
     delete_all(client, [env, rancher_env])
 '''
+
 
 def test_rancher_compose_service_links(client,
                                        rancher_cli_container):
@@ -714,6 +716,7 @@ def test_rancher_compose_lbservice_multiple_port(client,
                         "www.abc2.com", "/service3.html")
     delete_all(client, [env, rancher_env])
 '''
+
 
 def test_rancher_compose_external_services_hostname(client,
                                                     rancher_cli_container):
