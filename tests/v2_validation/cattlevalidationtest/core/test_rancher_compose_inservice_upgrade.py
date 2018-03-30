@@ -1,10 +1,10 @@
 from common_fixtures import *  # NOQA
-#from test_services_volumemount import validate_volume_mount
+# from test_services_volumemount import validate_volume_mount
 
-#TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
-#TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
-#TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
-#LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
+# TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
+# TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
+# TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
+# LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
 INSERVICE_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 'resources/inservicedc')
 
@@ -1299,6 +1299,7 @@ def test_rancher_compose_inservice_upgrade_retainip_during_upgrade_rollback(
     delete_all(client, [stack])
 '''
 
+
 @if_compose_data_files
 def test_rancher_compose_inservice_upgrade_remove_sk(
         client, rancher_cli_container):
@@ -1601,6 +1602,7 @@ def test_rancher_compose_inservice_upgrade_add_sk_rollback(
         client, service, managed=0)
     assert len(container_list) == 0
     delete_all(client, [stack])
+
 
 @if_compose_data_files
 def test_rancher_compose_upgrade_with_ports_confirm(

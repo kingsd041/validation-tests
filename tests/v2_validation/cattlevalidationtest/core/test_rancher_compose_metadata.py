@@ -1,9 +1,9 @@
 from common_fixtures import *  # NOQA
 import json
 
-#TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
-#TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
-#TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
+# TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
+# TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
+# TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
 METADATA_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                'resources/metadatadc')
 
@@ -799,6 +799,7 @@ def test_metadata_hostnet(client, rancher_cli_container):
     delete_all(client, [env])
 '''
 
+
 @if_compose_data_files
 def test_metadata_externalservice_ip(
         client, rancher_cli_container):
@@ -957,7 +958,8 @@ def fetch_rancher_metadata(client, con, port, command, version=None):
     rancher_metadata_cmd = \
         "powershell -Command \"Invoke-WebRequest  -uri  " + \
         "\'http://169.254.169.250/"+version+"/" + command + \
-        "\' -Headers @{\'accept\'=\'application/json\'} -OutFile result.txt ; cat result.txt\""
+        "\' -Headers @{\'accept\'=\'application/json\'} \
+        -OutFile result.txt ; cat result.txt\""
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

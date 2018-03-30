@@ -553,8 +553,7 @@ def test_dns_discoverys_coss_stack_service(
                          "networkMode": MANAGED_NETWORK,
                          "isolation": isolation,
                          "stdinOpen": True,
-                         "tty": True
-                        }
+                         "tty": True}
     launch_config_svc["ports"] = [port+":"+"22/tcp"]
     env1 = create_env(client)
     service_name = random_str()
@@ -807,7 +806,7 @@ def test_dns_discovery_for_service_with_sidekick(client):
     # Deploy client service in same environment
     port = "431"
     launch_config_svc = {"imageUuid": SSH_IMAGE_UUID,
-                        "networkMode": MANAGED_NETWORK,
+                         "networkMode": MANAGED_NETWORK,
                          "isolation": isolation,
                          "stdinOpen": True,
                          "tty": True
@@ -911,7 +910,7 @@ def validate_for_container_dns_resolution(
 
         # Validate DNS resolution using dig
         cmd = "powershell -Command Resolve-DnsName " + dns_name + \
-        " | Select IP4Address | Format-Wide -Column 1"
+              " | Select IP4Address | Format-Wide -Column 1"
         logger.info(cmd)
         print cmd
         stdin, stdout, stderr = ssh.exec_command(cmd)
