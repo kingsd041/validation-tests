@@ -1,7 +1,6 @@
 from common_fixtures import *  # NOQA
 import websocket as ws
-from test_container import assert_execute, assert_stats, assert_ip_inject
-import pdb
+# from test_container import assert_execute, assert_stats, assert_ip_inject
 
 CONTAINER_APPEAR_TIMEOUT_MSG = 'Timed out waiting for container ' \
                                'to appear. Name: [%s].'
@@ -44,6 +43,7 @@ def native_cleanup(client, request):
 def native_name(random_str):
     return 'native-' + random_str
 
+
 # Known issue 12060
 def test_native_net_blank(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
@@ -53,7 +53,8 @@ def test_native_net_blank(client, native_name, pull_images):
                                                          docker_container,
                                                          docker_client,
                                                          native_name)
-    common_network_asserts_default(rancher_container, docker_container, 'default')
+    common_network_asserts_default(rancher_container,
+                                   docker_container, 'default')
 
 
 def test_native_net_nat(client, native_name, pull_images):
@@ -108,6 +109,7 @@ def test_native_net_container(socat_containers, client, native_name,
     assert container['networkContainerId'] == target_container.id
 '''
 
+
 def test_native_lifecycyle(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     docker_container = docker_client.create_container(NATIVE_TEST_IMAGE,
@@ -152,6 +154,7 @@ def test_native_managed_network(client, native_name,
         'IPAddress']
     assert container.networkMode == 'managed'
 '''
+
 
 def wait_for_state(client, expected_state, c_id):
     def stopped_check():
@@ -204,6 +207,7 @@ def test_native_volumes(socat_containers, client, native_name, pull_images):
     assert tmp_mount.permission == 'ro'
     assert tmp_mount.volumeName == '/tmp1'
 '''
+
 
 def test_native_logs(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
@@ -261,6 +265,7 @@ def test_native_ip_inject(client, socat_containers, native_name,
     assert_ip_inject(client.reload(rancher_container))
 '''
 
+
 def test_native_container_stats(client, native_name,
                                 pull_images):
     docker_client = get_docker_client(host(client))
@@ -312,12 +317,14 @@ def common_network_asserts(rancher_container, docker_container,
     else:
         ip_address = rancher_container.primaryIpAddress
     assert ip_address == \
-        docker_container['NetworkSettings']['Networks'][expected_net_mode]['IPAddress']
+        docker_container['NetworkSettings'
+                         ]['Networks'][expected_net_mode]['IPAddress']
 
     assert rancher_container.networkMode == expected_net_mode
 
+
 def common_network_asserts_default(rancher_container, docker_container,
-                           expected_net_mode):
+                                   expected_net_mode):
     assert rancher_container.externalId == docker_container['Id']
     assert rancher_container.state == 'running'
     if rancher_container.primaryIpAddress is None:
@@ -325,9 +332,11 @@ def common_network_asserts_default(rancher_container, docker_container,
     else:
         ip_address = rancher_container.primaryIpAddress
     assert ip_address == \
-        docker_container['NetworkSettings']['Networks']['transparent']['IPAddress']
+        docker_container['NetworkSettings'
+                         ]['Networks']['transparent']['IPAddress']
 
     assert rancher_container.networkMode == expected_net_mode
+
 
 def wait_on_rancher_container(client, name, timeout=None):
     def check():
@@ -345,7 +354,8 @@ def wait_on_rancher_container(client, name, timeout=None):
     container = client.wait_success(container, **kwargs)
     return container
 
-# Most of the parameters windows environment does not support, so the cancellation
+# Most of the parameters windows environment does not support
+# so the cancellation
 '''
 def test_native_fields(client, pull_images):
     docker_client = get_docker_client(host(client))

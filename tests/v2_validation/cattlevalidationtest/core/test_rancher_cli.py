@@ -1,9 +1,9 @@
 from common_fixtures import *  # NOQA
 
-#TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
-#TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
-#TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
-#LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
+# TEST_SERVICE_OPT_IMAGE = 'ibuildthecloud/helloworld'
+# TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':latest'
+# TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
+# LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
 RCLICOMMANDS_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                    'resources/ranchercli')
 RCCOMMANDS_SUBDIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -1622,6 +1622,7 @@ def test_rancher_compose_v2_services_volume(client,
                                            compose_directory)
 '''
 
+
 def check_rancher_compose_services_security(client,
                                             compose_directory):
     # This method tests the options in security tab in the UI
@@ -1644,17 +1645,18 @@ def check_rancher_compose_services_security(client,
         logger.info("Checked for containers running " + con.name)
         assert inspect["State"]["Running"]
 
-        # The Windows environment does not support privileges, Memory, CpuShares, CapAdd, CapDrop, PidMode.
+        # The Windows environment does not support \
+        # privileges, Memory, CpuShares, CapAdd, CapDrop, PidMode.
 
-        #assert inspect["HostConfig"]["Privileged"]
-        #assert inspect["HostConfig"]["Memory"] == 104857600
-        #assert inspect["HostConfig"]["CpuShares"] == 256
-        #assert inspect["HostConfig"]["CapAdd"] == ["AUDIT_CONTROL",
-        #                                           "AUDIT_WRITE"]
-        #assert inspect["HostConfig"]["CapDrop"] == ["BLOCK_SUSPEND",
-        #                                            "CHOWN"]
+        # assert inspect["HostConfig"]["Privileged"]
+        # assert inspect["HostConfig"]["Memory"] == 104857600
+        # assert inspect["HostConfig"]["CpuShares"] == 256
+        # assert inspect["HostConfig"]["CapAdd"] == ["AUDIT_CONTROL",
+        #                                            "AUDIT_WRITE"]
+        # assert inspect["HostConfig"]["CapDrop"] == ["BLOCK_SUSPEND",
+        #                                             "CHOWN"]
         assert inspect["Config"]["Hostname"] == "rancherhost"
-        #assert inspect["HostConfig"]["PidMode"] == "host"
+        # assert inspect["HostConfig"]["PidMode"] == "host"
     delete_all(client, [stack])
 
 
@@ -1699,11 +1701,11 @@ def check_rancher_compose_services_network(client,
             inspect["Config"]["Labels"][hostname_override] \
             == "container_name"
         assert inspect["Config"]["Labels"][requested_ip] == "209.243.140.21"
-        dns_list = inspect["HostConfig"]["Dns"]
-        dnssearch_list = inspect["HostConfig"]["DnsSearch"]
+        # dns_list = inspect["HostConfig"]["Dns"]
+        # dnssearch_list = inspect["HostConfig"]["DnsSearch"]
         # Windows environment does not support setting up DNS.
-        #assert "209.243.150.21" in dns_list
-        #assert "www.google.com" in dnssearch_list
+        # assert "209.243.150.21" in dns_list
+        # assert "www.google.com" in dnssearch_list
     delete_all(client, [stack])
 
 
