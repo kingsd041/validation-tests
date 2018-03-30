@@ -365,6 +365,7 @@ def test_sidekick_for_lb(client, socat_containers):
     delete_all(client, [env])
 '''
 
+
 def test_sidekick(client):
     service_scale = 2
     env, service, service_name, consumed_service_name = \
@@ -752,6 +753,7 @@ def test_sidekick_lbactivation_after_linking(client, socat_containers):
     delete_all(client, [env])
 '''
 
+
 def validate_sidekick(client, primary_service, service_name,
                       consumed_service_name, exposed_port=None, dnsname=None):
     print "Validating service - " + service_name
@@ -815,10 +817,10 @@ def validate_dns(client, service_containers, consumed_service,
 
         # Validate link containers
         cmd = "powershell -Command Invoke-WebRequest -uri  http://" + \
-                  dnsname + ":80/name.html -OutFile result.txt;cat result.txt"
+              dnsname + ":80/name.html -OutFile result.txt;cat result.txt"
         print cmd
         stdin, stdout, stderr = ssh.exec_command(cmd)
-        
+
         response = stdout.readlines()
         assert len(response) == 1
         resp = response[0].strip("\r\n")
@@ -827,7 +829,7 @@ def validate_dns(client, service_containers, consumed_service,
 
         # Validate DNS resolution using dig
         cmd = "powershell -Command Resolve-DnsName " + dnsname + \
-                  " | Select IP4Address | Format-Wide -Column 1"
+              " | Select IP4Address | Format-Wide -Column 1"
         print cmd
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
@@ -842,4 +844,3 @@ def validate_dns(client, service_containers, consumed_service,
 
         for address in expected_dns_list:
             assert address in dns_response
-
