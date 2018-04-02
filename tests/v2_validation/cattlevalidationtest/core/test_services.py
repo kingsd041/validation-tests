@@ -316,7 +316,8 @@ def test_services_docker_options_2(client):
     delete_all(client, [env])
 
 
-# Skip 2018-2-12
+# Link does not support getting environment variables in windows docker
+'''
 def test_services_port_and_link_options(client):
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
@@ -362,6 +363,7 @@ def test_services_port_and_link_options(client):
                                              link_port, exposed_port)
 
     delete_all(client, [env, link_container])
+'''
 
 
 def test_services_multiple_expose_port(client):
