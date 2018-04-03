@@ -1,6 +1,6 @@
 from common_fixtures import *  # NOQA
 import websocket as ws
-# from test_container import assert_execute, assert_stats, assert_ip_inject
+from test_container import assert_execute, assert_stats, assert_ip_inject
 
 CONTAINER_APPEAR_TIMEOUT_MSG = 'Timed out waiting for container ' \
                                'to appear. Name: [%s].'
@@ -228,6 +228,8 @@ def test_native_logs(client, native_name, pull_images):
     assert found_msg
 
 
+# Windows environment does not support.
+'''
 def test_native_exec(client, native_name, pull_images):
     docker_client = get_docker_client(host(client))
     test_msg = 'EXEC_WORKS'
@@ -243,6 +245,8 @@ def test_native_exec(client, native_name, pull_images):
                                           native_name)
 
     assert_execute(rancher_container, test_msg)
+'''
+
 
 # Windows environment does not support
 '''
