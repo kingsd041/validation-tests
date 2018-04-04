@@ -1,7 +1,7 @@
 from common_fixtures import *  # NOQA
 import requests
 import websocket as ws
-#import base64
+# import base64
 
 
 def test_sibling_pinging(client, one_per_host):

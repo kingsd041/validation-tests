@@ -1,6 +1,6 @@
 from common_fixtures import *  # NOQA
 import websocket as ws
-#from test_container import assert_execute, assert_stats, assert_ip_inject
+# from test_container import assert_execute, assert_stats, assert_ip_inject
 from test_container import assert_stats
 
 CONTAINER_APPEAR_TIMEOUT_MSG = 'Timed out waiting for container ' \
