@@ -1,7 +1,7 @@
 from common_fixtures import *  # NOQA
 import requests
 import websocket as ws
-import base64
+#import base64
 
 
 def test_sibling_pinging(client, one_per_host):
@@ -178,7 +178,7 @@ def test_container_execute(client, test_name):
 def assert_execute(container, test_msg):
     execute = container.execute(attachStdin=True,
                                 attachStdout=True,
-                                command=['powershell -c echo ' 
+                                command=['powershell -c echo '
                                          + test_msg],
                                 tty=True)
     conn = ws.create_connection(execute.url + '?token=' + execute.token,
@@ -196,6 +196,7 @@ def assert_execute(container, test_msg):
     wait_for(exec_check,
              'Timeout waiting for exec msg %s' % test_msg)
 '''
+
 
 def test_container_stats(client, test_name):
     cleanup_items = []
