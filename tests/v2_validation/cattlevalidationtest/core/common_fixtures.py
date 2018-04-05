@@ -521,7 +521,6 @@ def delete_by_id(self, type, id):
 def get_port_content(port, path, params={}):
     assert port.publicPort is not None
     assert port.publicIpAddressId is not None
-
     url = 'http://{}:{}/{}'.format(port.publicIpAddress().address,
                                    port.publicPort,
                                    path)

@@ -68,6 +68,7 @@ def test_dynamic_port(client, test_name):
     delete_all(client, [c])
 
 
+# Known issue #12490 and #11139
 def test_linking(client, admin_client, test_name):
 
     hosts = client.list_host(kind='docker', removed_null=True)
@@ -207,7 +208,7 @@ def test_container_stats(client, test_name):
                                             attachStdin=True,
                                             attachStdout=True,
                                             tty=True,
-                                            command='/bin/bash')
+                                            command='powershell')
         cleanup_items.append(container)
         container = client.wait_success(container)
 
@@ -216,7 +217,7 @@ def test_container_stats(client, test_name):
         delete_all(client, cleanup_items)
 
 
-@if_container_refactoring
+# @if_container_refactoring
 def test_create_container_with_stack(client):
     stack = create_env(client)
     con = create_sa_container(client, stack)
@@ -224,7 +225,7 @@ def test_create_container_with_stack(client):
     delete_all(client, [stack])
 
 
-@if_container_refactoring
+# @if_container_refactoring
 def test_create_container_without_stack(client):
     con = create_sa_container(client,
                               stack=client.list_stack(name='default')[0])
@@ -234,7 +235,7 @@ def test_create_container_without_stack(client):
     delete_all(client, [con])
 
 
-@if_container_refactoring
+# @if_container_refactoring
 def test_create_container_with_sidekick(client):
     # Deploy container as as sidekick to an existing container and make sure
     # they land on the same host
@@ -246,7 +247,7 @@ def test_create_container_with_sidekick(client):
     delete_all(client, [con, sidekick_con])
 
 
-@if_container_refactoring
+# @if_container_refactoring
 def test_create_container_with_sidekick_with_ports(client):
     # Consume host ports in 2 of the 3 hosts in the setup
     con_port = "9000"
