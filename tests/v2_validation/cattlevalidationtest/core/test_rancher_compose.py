@@ -3,7 +3,7 @@ from common_fixtures import *  # NOQA
 TEST_SERVICE_OPT_IMAGE = 'kingsd/win-nodejs'
 TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':5.0'
 TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
-LB_IMAGE_UUID = "docker:sangeetha/testlbsd:latest"
+LB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.4"
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +271,7 @@ def test_rancher_compose_service_option_2(client,
 
 @pytest.mark.skipif(True, reason='not implemented yet')
 def test_rancher_compose_services_port_and_link_options(
-        client, rancher_cli_container, socat_containers):
+        client, rancher_cli_container):
 
     hosts = client.list_host(kind='docker', removed_null=True, state="active")
 
