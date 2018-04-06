@@ -15,7 +15,7 @@ if_compose_data_files = pytest.mark.skipif(
     reason='Docker compose files directory location not set/ does not Exist')
 
 metadata_client_service = []
-# metadata_client_port = 999
+metadata_client_port = 999
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -44,8 +44,6 @@ def create_metadata_client_service(request, client):
 @if_compose_data_files
 def test_metadata_self_2016_07_29(
         client, rancher_cli_container):
-
-    metadata_client_port = 981
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_1_2016_07_29.yml"
     rc_file = "rc_metadata_1_2016_07_29.yml"
@@ -142,7 +140,6 @@ def test_metadata_self_2016_07_29(
 def test_metadata_byname_2016_07_29(
         client, rancher_cli_container):
 
-    metadata_client_port = 982
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_2_2016_07_29.yml"
     rc_file = "rc_metadata_2_2016_07_29.yml"
@@ -225,7 +222,6 @@ def test_metadata_byname_2016_07_29(
 def test_metadata_self_2015_12_19(
         client, rancher_cli_container):
 
-    metadata_client_port = 983
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_1n.yml"
     rc_file = "rc_metadata_1n.yml"
@@ -320,7 +316,6 @@ def test_metadata_self_2015_12_19(
 def test_metadata_byname_2015_12_19(
         client, rancher_cli_container):
 
-    metadata_client_port = 984
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_2n.yml"
     rc_file = "rc_metadata_2n.yml"
@@ -403,7 +398,6 @@ def test_metadata_byname_2015_12_19(
 def test_metadata_self_2015_07_25(
         client, rancher_cli_container):
 
-    metadata_client_port = 985
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_1.yml"
     rc_file = "rc_metadata_1.yml"
@@ -483,7 +477,6 @@ def test_metadata_self_2015_07_25(
 def test_metadata_byname_2015_07_25(
         client, rancher_cli_container):
 
-    metadata_client_port = 986
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_2.yml"
     rc_file = "rc_metadata_2.yml"
@@ -556,7 +549,6 @@ def test_metadata_byname_2015_07_25(
 @if_compose_data_files
 def test_metadata_update(client, rancher_cli_container):
 
-    metadata_client_port = 987
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_3.yml"
     rc_file = "rc_metadata_3.yml"
@@ -609,7 +601,6 @@ def test_metadata_update(client, rancher_cli_container):
 def test_metadata_scaleup(
         client, rancher_cli_container):
 
-    metadata_client_port = 989
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_4.yml"
     rc_file = "rc_metadata_4.yml"
@@ -661,7 +652,6 @@ def test_metadata_scaleup(
 def test_metadata_scaledown(
         client, rancher_cli_container):
 
-    metadata_client_port = 990
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_5.yml"
     rc_file = "rc_metadata_5.yml"
@@ -714,7 +704,6 @@ def test_metadata_scaledown(
 @if_compose_data_files
 def test_metadata_sidekick(client, rancher_cli_container):
 
-    metadata_client_port = 991
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_sk.yml"
     rc_file = "rc_metadata_sk.yml"
@@ -747,7 +736,6 @@ def test_metadata_sidekick(client, rancher_cli_container):
 @if_compose_data_files
 def test_metadata_links(client, rancher_cli_container):
 
-    metadata_client_port = 992
     env_name1 = "testlink"
     dc_file = "dc_metadata_links_1.yml"
 
@@ -816,7 +804,6 @@ def test_metadata_hostnet(client, rancher_cli_container):
 def test_metadata_externalservice_ip(
         client, rancher_cli_container):
 
-    metadata_client_port = 993
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_extservice_ip.yml"
     rc_file = "rc_metadata_extservice_ip.yml"
@@ -842,7 +829,6 @@ def test_metadata_externalservice_ip(
 def test_metadata_externalservice_cname(
         client, rancher_cli_container):
 
-    metadata_client_port = 994
     env_name = random_str().replace("-", "")
     dc_file = "dc_metadata_extservice_cname.yml"
     rc_file = "rc_metadata_extservice_cname.yml"
