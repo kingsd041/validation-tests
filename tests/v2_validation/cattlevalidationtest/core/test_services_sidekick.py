@@ -393,6 +393,7 @@ def test_sidekick_with_anti_affinity(client):
     delete_all(client, [env])
 
 
+# Known issue #11856
 def test_service_links_to_sidekick(client):
 
     service_scale = 2
