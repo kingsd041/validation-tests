@@ -443,7 +443,7 @@ def cli_create_restart_service(client, compose_directory,
 
     command = "restart " + stack_name + "/" + service.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 200)
     if service.id in cli_response:
         assert True
 
