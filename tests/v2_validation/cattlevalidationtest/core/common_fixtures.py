@@ -3530,6 +3530,7 @@ def execute_rancher_cli(client, stack_name, command,
                 stdout.channel.close()
                 break
     response = stdout.readlines()
+    ssh.close()
     return response
 
 
