@@ -20,7 +20,7 @@ def create_services_for_selectors(request, client):
                                         stackId=env.id,
                                         launchConfig=launch_config,
                                         scale=2)
-        service = client.wait_success(service, 120)
+        service = client.wait_success(service, 500)
         shared_services.append(service)
 
     def fin():
@@ -109,9 +109,9 @@ def test_selectorLink(client):
     linked_service = client.wait_success(linked_service)
     assert linked_service.state == "inactive"
     env = env.activateservices()
-    service = client.wait_success(service, 300)
+    service = client.wait_success(service, 500)
     assert service.state == "active"
-    linked_service = client.wait_success(linked_service, 300)
+    linked_service = client.wait_success(linked_service, 500)
     assert linked_service.state == "active"
     validate_linked_service(client, service, [linked_service], port)
     delete_all(client, [env])
@@ -237,9 +237,9 @@ def test_selectorLink_dnsservice(client):
     linked_service2.activate()
     dns.activate()
 
-    linked_service1 = client.wait_success(linked_service1, 300)
+    linked_service1 = client.wait_success(linked_service1, 500)
     assert linked_service1.state == "active"
-    linked_service2 = client.wait_success(linked_service2, 300)
+    linked_service2 = client.wait_success(linked_service2, 500)
     assert linked_service2.state == "active"
     dns = client.wait_success(dns, 300)
     assert dns.state == "active"
@@ -305,9 +305,9 @@ def test_selectorLink_tolinkto_dnsservice(client):
     linked_service2.activate()
     dns.activate()
 
-    linked_service1 = client.wait_success(linked_service1, 300)
+    linked_service1 = client.wait_success(linked_service1, 500)
     assert linked_service1.state == "active"
-    linked_service2 = client.wait_success(linked_service2, 300)
+    linked_service2 = client.wait_success(linked_service2, 500)
     assert linked_service2.state == "active"
     dns = client.wait_success(dns, 300)
     assert dns.state == "active"
@@ -350,7 +350,7 @@ def test_selectorContainer_service_link(client):
     service.addservicelink(serviceLink={"serviceId": consumed_service.id})
     service = client.wait_success(service, 240)
 
-    consumed_service = client.wait_success(consumed_service, 240)
+    consumed_service = client.wait_success(consumed_service, 500)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -440,10 +440,10 @@ def test_selectorContainer_dns(client):
     dns.addservicelink(serviceLink={"serviceId": consumed_service.id})
     dns.addservicelink(serviceLink={"serviceId": consumed_service1.id})
 
-    service = client.wait_success(service, 240)
-    consumed_service = client.wait_success(consumed_service, 240)
-    consumed_service1 = client.wait_success(consumed_service1, 240)
-    dns = client.wait_success(dns, 240)
+    service = client.wait_success(service, 500)
+    consumed_service = client.wait_success(consumed_service, 500)
+    consumed_service1 = client.wait_success(consumed_service1, 500)
+    dns = client.wait_success(dns, 500)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -827,7 +827,7 @@ def test_selectorContainer_scale_up(client):
 
     # Scale service
     service = client.update(service, name=service.name, scale=3)
-    service = client.wait_success(service, 300)
+    service = client.wait_success(service, 500)
     assert service.state == "active"
     assert service.scale == 3
 
@@ -850,7 +850,7 @@ def test_selectorContainer_scale_down(client):
 
     # Scale service
     service = client.update(service, name=service.name, scale=1)
-    service = client.wait_success(service, 300)
+    service = client.wait_success(service, 500)
     assert service.state == "active"
     assert service.scale == 1
 
