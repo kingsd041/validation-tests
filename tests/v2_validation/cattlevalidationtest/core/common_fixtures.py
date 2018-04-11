@@ -89,7 +89,7 @@ if_ontag = pytest.mark.skipif(
 WEB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.4"
 WEB_SSL_IMAGE1_UUID = "docker:sangeetha/ssllbtarget1:latest"
 WEB_SSL_IMAGE2_UUID = "docker:sangeetha/ssllbtarget2:latest"
-SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.11"
+SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.22"
 LB_HOST_ROUTING_IMAGE_UUID = "docker:kingsd/win-nodejs:5.0"
 SSH_IMAGE_UUID_HOSTNET = "docker:sangeetha/testclient33:latest"
 HOST_ACCESS_IMAGE_UUID = "docker:sangeetha/testclient44:latest"
@@ -1564,7 +1564,7 @@ def rancher_compose_container(admin_client, client, request):
     c = client.create_container(name="rancher-compose-client",
                                 networkMode=MANAGED_NETWORK,
                                 tty=True,
-                                imageUuid="docker:kingsd/windowsssh:v0.11",
+                                imageUuid="docker:kingsd/windowsssh:v0.22",
                                 ports=[port+":22/tcp"],
                                 requestedHostId=host.id
                                 )
@@ -3452,7 +3452,7 @@ def rancher_cli_container(admin_client, client, request):
     c = client.create_container(name="rancher-cli-client-" + random_str(),
                                 networkMode=MANAGED_NETWORK,
                                 tty=True,
-                                imageUuid="docker:kingsd/windowsssh:v0.11",
+                                imageUuid="docker:kingsd/windowsssh:v0.22",
                                 ports=[port+":22/tcp"],
                                 requestedHostId=host.id
                                 )

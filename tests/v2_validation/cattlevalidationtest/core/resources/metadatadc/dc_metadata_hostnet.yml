@@ -2,6 +2,6 @@ testhostdns:
   labels:
     io.rancher.container.dns: 'true'
   tty: true
-  image: kingsd/windowsssh:v0.11
+  image: kingsd/windowsssh:v0.22
   stdin_open: true
   net: host

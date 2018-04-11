@@ -8,7 +8,7 @@ test1:
   labels:
     io.rancher.sidekicks: sk1,sk2
     test1: value2
-  image: kingsd/windowsssh:v0.11
+  image: kingsd/windowsssh:v0.22
   volumes_from:
   - sk1
 sk2:

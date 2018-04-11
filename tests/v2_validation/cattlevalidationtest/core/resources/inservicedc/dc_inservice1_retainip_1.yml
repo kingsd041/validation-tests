@@ -1,7 +1,7 @@
 test1:
   restart: always
   tty: true
-  image: kingsd/windowsssh:v0.11
+  image: kingsd/windowsssh:v0.22
   stdin_open: true
   labels:
     test1: value1

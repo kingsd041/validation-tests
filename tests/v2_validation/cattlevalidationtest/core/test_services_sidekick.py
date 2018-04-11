@@ -2,7 +2,7 @@ from common_fixtures import *  # NOQA
 
 
 WEB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.4"
-SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.11"
+SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.22"
 isolation = "default",
 
 

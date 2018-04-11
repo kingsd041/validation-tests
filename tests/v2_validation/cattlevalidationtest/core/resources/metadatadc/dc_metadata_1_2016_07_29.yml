@@ -4,7 +4,7 @@ test120160729:
   - 6002:22/tcp
   restart: always
   tty: true
-  image: kingsd/windowsssh:v0.11
+  image: kingsd/windowsssh:v0.22
   stdin_open: true
   net: transparent
   labels:

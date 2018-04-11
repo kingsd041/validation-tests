@@ -8,7 +8,7 @@ TEST_SERVICE_OPT_IMAGE_LATEST = TEST_SERVICE_OPT_IMAGE + ':5.0'
 TEST_SERVICE_OPT_IMAGE_UUID = 'docker:' + TEST_SERVICE_OPT_IMAGE_LATEST
 
 LB_IMAGE_UUID = "docker:kingsd/win-nginx:v0.4"
-SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.1"
+SSH_IMAGE_UUID = "docker:kingsd/windowsssh:v0.22"
 
 
 docker_config_running = [{"docker_param_name": "State.Running",
