@@ -1298,6 +1298,7 @@ def validate_linked_service(admin_client, service, consumed_services,
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
+            ssh.close()
             if not_reachable:
                 assert len(response) == 0
             else:
@@ -1313,6 +1314,7 @@ def validate_linked_service(admin_client, service, consumed_services,
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
+            ssh.close()
             logger.info("Actual dig Response" + str(response))
 
             unmanaged_con_count = 0
@@ -1413,6 +1415,7 @@ def validate_dns_service(admin_client, service, consumed_services,
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
+        ssh.close()
         assert len(response) == 1
         resp = response[0].strip("\r\n")
         logger.info("Actual wget Response" + str(resp))
@@ -1426,6 +1429,7 @@ def validate_dns_service(admin_client, service, consumed_services,
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
+        ssh.close()
         response_transcript = response[:]
         [response_transcript.remove(res) for res in response if res == '\r\n']
         logger.info("Actual dig Response" + str(response_transcript))
@@ -1483,6 +1487,7 @@ def validate_external_service(admin_client, service, ext_services,
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
+            ssh.close()
             assert len(response) == 1
             resp = response[0].strip("\r\n")
             print "Actual wget Response" + str(resp)
@@ -1496,6 +1501,7 @@ def validate_external_service(admin_client, service, ext_services,
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
+            ssh.close()
             print "Actual dig Response" + str(response)
 
             response_transcript = response[:]
@@ -1536,6 +1542,7 @@ def validate_external_service_for_hostname(admin_client, service, ext_services,
 
             stdin, stdout, stderr = ssh.exec_command(cmd)
             response = stdout.readlines()
+            ssh.close()
             print "Actual wget Response" + str(response)
             assert ext_service.hostname in str(response) and \
                 "0% loss" in str(response)
@@ -1581,6 +1588,7 @@ def rancher_compose_container(admin_client, client, request):
     print cmd
     stdin, stdout, stderr = ssh.exec_command(cmd)
     response = stderr.readlines()
+    ssh.close()
 
     if len(response) == 0:
         found = True
@@ -1655,6 +1663,7 @@ def execute_rancher_compose(client, env_name, docker_compose,
     print cmd
     stdin, stdout, stderr = ssh.exec_command(cmd, timeout=timeout)
     response = stderr.readlines()
+    ssh.close()
     print "Obtained Response: " + str(response)
     print "Expected Response: " + expected_resp
     found = False
@@ -3468,6 +3477,7 @@ def rancher_cli_container(admin_client, client, request):
     print cmd
     stdin, stdout, stderr = ssh.exec_command(cmd)
     response = stderr.readlines()
+    ssh.close()
 
     if len(response) == 0:
         found = True
