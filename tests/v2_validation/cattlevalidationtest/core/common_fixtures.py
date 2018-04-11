@@ -1298,7 +1298,6 @@ def validate_linked_service(admin_client, service, consumed_services,
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
-            ssh.close()
             if not_reachable:
                 assert len(response) == 0
             else:
@@ -1415,7 +1414,6 @@ def validate_dns_service(admin_client, service, consumed_services,
         stdin, stdout, stderr = ssh.exec_command(cmd)
 
         response = stdout.readlines()
-        ssh.close()
         assert len(response) == 1
         resp = response[0].strip("\r\n")
         logger.info("Actual wget Response" + str(resp))
@@ -1487,7 +1485,6 @@ def validate_external_service(admin_client, service, ext_services,
             stdin, stdout, stderr = ssh.exec_command(cmd)
 
             response = stdout.readlines()
-            ssh.close()
             assert len(response) == 1
             resp = response[0].strip("\r\n")
             print "Actual wget Response" + str(resp)
