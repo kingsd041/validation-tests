@@ -63,7 +63,7 @@ def test_container_run_with_options_1(client, test_name):
                                 restartPolicy=restart_policy,
                                 command=command
                                 )
-    c = client.wait_success(c, 120)
+    c = client.wait_success(c, 300)
     assert c.state == "running"
     docker_client = get_docker_client(host)
     inspect = docker_client.inspect_container(c.externalId)
@@ -110,7 +110,7 @@ def test_container_run_with_options_2(client, test_name):
                                 stdinOpen=True,
                                 tty=True,
                                 )
-    c = client.wait_success(c, 120)
+    c = client.wait_success(c, 300)
     assert c.state == "running"
     docker_client = get_docker_client(host)
     inspect = docker_client.inspect_container(c.externalId)

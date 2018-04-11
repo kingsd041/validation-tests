@@ -231,10 +231,10 @@ def env_with_sidekick(client, service_scale, exposed_port):
         create_env_with_sidekick(client, service_scale, exposed_port)
 
     env = env.activateservices()
-    env = client.wait_success(env, 120)
+    env = client.wait_success(env, 300)
     assert env.state == "active"
 
-    service = client.wait_success(service, 240)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
     dnsname = service.secondaryLaunchConfigs[0].name
@@ -254,10 +254,10 @@ def test_sidekick_activate_env(client):
         create_env_with_sidekick(client, service_scale, exposed_port)
 
     env = env.activateservices()
-    env = client.wait_success(env, 120)
+    env = client.wait_success(env, 300)
     assert env.state == "active"
 
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
     dnsname = service.secondaryLaunchConfigs[0].name
@@ -278,7 +278,7 @@ def test_multiple_sidekick_activate_service(client):
             client, service_scale, exposed_port)
 
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
     dnsname = service.secondaryLaunchConfigs[0].name
@@ -371,7 +371,7 @@ def test_sidekick(client):
     env, service, service_name, consumed_service_name = \
         create_env_with_sidekick_for_linking(client, service_scale)
     env = env.activateservices()
-    service = client.wait_success(service, 240)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
     validate_sidekick(client, service, service_name,
@@ -385,7 +385,7 @@ def test_sidekick_with_anti_affinity(client):
     env, service, service_name, consumed_service_name = \
         create_env_with_sidekick_anti_affinity(client, service_scale)
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
     validate_sidekick(client, service, service_name,
@@ -412,7 +412,7 @@ def test_service_links_to_sidekick(client):
     link_svc(client, service, [linked_service])
 
     env = env.activateservices()
-    service = client.wait_success(service, 240)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
     service_containers = get_service_container_list(client, service)
@@ -447,7 +447,7 @@ def test_sidekick_service_scale_up(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -467,7 +467,7 @@ def test_sidekick_scale_down(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -512,7 +512,7 @@ def test_sidekick_consumed_services_restart_instance(client):
     container = containers[0]
 
     # restart instance
-    container = client.wait_success(container.restart(), 120)
+    container = client.wait_success(container.restart(), 300)
     assert container.state == 'running'
 
     dnsname = service.secondaryLaunchConfigs[0].name
@@ -565,14 +565,14 @@ def test_sidekick_deactivate_activate_environment(client):
         env_with_sidekick(client, service_scale, exposed_port)
 
     env = env.deactivateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "inactive"
 
     wait_until_instances_get_stopped_for_service_with_sec_launch_configs(
         client, service)
 
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -619,7 +619,7 @@ def test_sidekick_services_restart_instance(client):
     container = containers[0]
 
     # restart instance
-    container = client.wait_success(container.restart(), 120)
+    container = client.wait_success(container.restart(), 300)
     assert container.state == 'running'
     time.sleep(restart_sleep_interval)
     dnsname = service.secondaryLaunchConfigs[0].name
@@ -671,14 +671,14 @@ def test_sidekick_services_deactivate_activate(client):
         env_with_sidekick(client, service_scale, exposed_port)
 
     service = service.deactivate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "inactive"
 
     wait_until_instances_get_stopped_for_service_with_sec_launch_configs(
         client, service)
 
     service = service.activate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     time.sleep(restart_sleep_interval)
 

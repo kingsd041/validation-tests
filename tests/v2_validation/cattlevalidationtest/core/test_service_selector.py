@@ -348,7 +348,7 @@ def test_selectorContainer_service_link(client):
 
     service.activate()
     service.addservicelink(serviceLink={"serviceId": consumed_service.id})
-    service = client.wait_success(service, 240)
+    service = client.wait_success(service, 300)
 
     consumed_service = client.wait_success(consumed_service, 500)
 

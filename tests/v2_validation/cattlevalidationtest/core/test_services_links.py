@@ -21,9 +21,9 @@ def create_environment_with_linked_services(
         linkName = "mylink"
     service.setservicelinks(
         serviceLinks=[{"serviceId": consumed_service.id, "name": linkName}])
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
 
-    consumed_service = client.wait_success(consumed_service, 240)
+    consumed_service = client.wait_success(consumed_service, 300)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -144,9 +144,9 @@ def test_link_link_when_services_still_activating(client):
 
     service.setservicelinks(serviceLinks=[{"serviceId": consumed_service.id,
                                            "name": "mylink"}])
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
 
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 300)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -175,7 +175,7 @@ def test_link_service_scale_up(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -201,7 +201,7 @@ def test_link_services_scale_down(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -228,7 +228,7 @@ def test_link_consumed_services_scale_up(client):
     consumed_service = client.update(consumed_service,
                                      scale=final_consumed_service_scale,
                                      name=consumed_service.name)
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 300)
     assert consumed_service.state == "active"
     assert consumed_service.scale == final_consumed_service_scale
 
@@ -255,7 +255,7 @@ def test_link_consumed_services_scale_down(client):
     consumed_service = client.update(consumed_service,
                                      scale=final_consumed_service_scale,
                                      name=consumed_service.name)
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 300)
     assert consumed_service.state == "active"
     assert consumed_service.scale == final_consumed_service_scale
 
@@ -312,7 +312,7 @@ def test_link_consumed_services_restart_instance(client):
     container = containers[0]
 
     # Restart instance
-    container = client.wait_success(container.restart(), 120)
+    container = client.wait_success(container.restart(), 300)
     assert container.state == 'running'
     time.sleep(restart_sleep_interval)
     validate_linked_service(client, service, [consumed_service], port,
@@ -363,12 +363,12 @@ def test_link_consumed_services_deactivate_activate(client):
                             linkName="mylink")
 
     consumed_service = consumed_service.deactivate()
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 300)
     assert consumed_service.state == "inactive"
     wait_until_instances_get_stopped(client, consumed_service)
 
     consumed_service = consumed_service.activate()
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 300)
     assert consumed_service.state == "active"
 
     validate_linked_service(client, service, [consumed_service], port,
@@ -390,12 +390,12 @@ def test_link_service_deactivate_activate(client):
                             linkName="mylink")
 
     service = service.deactivate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "inactive"
     wait_until_instances_get_stopped(client, service)
 
     service = service.activate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -418,19 +418,19 @@ def test_link_deactivate_activate_environment(client):
                             linkName="mylink")
 
     env = env.deactivateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "inactive"
 
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 300)
     assert consumed_service.state == "inactive"
 
     wait_until_instances_get_stopped(client, consumed_service)
 
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 300)
     assert consumed_service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -464,7 +464,7 @@ def test_link_add_remove_servicelinks(client):
     assert consumed_service1.state == "inactive"
 
     consumed_service1 = consumed_service1.activate()
-    consumed_service1 = client.wait_success(consumed_service1, 120)
+    consumed_service1 = client.wait_success(consumed_service1, 300)
     assert consumed_service1.state == "active"
 
     # Add another service link
@@ -527,7 +527,7 @@ def test_link_services_delete_service_add_service(client):
     assert service1.state == "inactive"
 
     service1 = service1.activate()
-    service1 = client.wait_success(service1, 240)
+    service1 = client.wait_success(service1, 300)
     assert service1.state == "active"
 
     service1.setservicelinks(
@@ -575,7 +575,7 @@ def test_link_services_delete_and_add_consumed_service(client):
     assert consumed_service1.state == "inactive"
 
     consumed_service1 = consumed_service1.activate()
-    consumed_service1 = client.wait_success(consumed_service1, 120)
+    consumed_service1 = client.wait_success(consumed_service1, 300)
     assert consumed_service1.state == "active"
 
     service.setservicelinks(
@@ -638,7 +638,7 @@ def test_link_services_restart_instance(client):
     service_instance = containers[0]
 
     # Restart consumed instance
-    service_instance = client.wait_success(service_instance.restart(), 120)
+    service_instance = client.wait_success(service_instance.restart(), 300)
     assert service_instance.state == 'running'
     time.sleep(restart_sleep_interval)
     validate_linked_service(client, service, [consumed_service], port,

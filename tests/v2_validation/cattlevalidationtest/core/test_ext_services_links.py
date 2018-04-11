@@ -11,8 +11,8 @@ def activate_environment_with_external_services(
     service.activate()
     ext_service.activate()
     service.addservicelink(serviceLink={"serviceId": ext_service.id})
-    service = client.wait_success(service, 120)
-    ext_service = client.wait_success(ext_service, 120)
+    service = client.wait_success(service, 300)
+    ext_service = client.wait_success(ext_service, 300)
     assert service.state == "active"
     assert ext_service.state == "active"
     validate_add_service_link(client, service, ext_service)
@@ -130,8 +130,8 @@ def test_extservice_link_when_services_still_activating(client):
     ext_service.activate()
 
     service.addservicelink(serviceLink={"serviceId": ext_service.id})
-    service = client.wait_success(service, 120)
-    ext_service = client.wait_success(ext_service, 120)
+    service = client.wait_success(service, 300)
+    ext_service = client.wait_success(ext_service, 300)
 
     assert service.state == "active"
     assert ext_service.state == "active"
@@ -159,7 +159,7 @@ def test_extservice_service_scale_up(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -185,7 +185,7 @@ def test_extservice_services_scale_down(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -209,11 +209,11 @@ def test_extservice_ext_services_deactivate_activate(client):
         client, service, [ext_service], port, con_list)
 
     ext_service = ext_service.deactivate()
-    ext_service = client.wait_success(ext_service, 120)
+    ext_service = client.wait_success(ext_service, 300)
     assert ext_service.state == "inactive"
 
     ext_service = ext_service.activate()
-    ext_service = client.wait_success(ext_service, 120)
+    ext_service = client.wait_success(ext_service, 300)
     assert ext_service.state == "active"
 
     validate_external_service(
@@ -236,12 +236,12 @@ def test_extservice_service_deactivate_activate(client):
                               port, con_list)
 
     service = service.deactivate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "inactive"
     wait_until_instances_get_stopped(client, service)
 
     service = service.activate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -265,19 +265,19 @@ def test_extservice_deactivate_activate_environment(client):
         client, service, [ext_service], port, con_list)
 
     env = env.deactivateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "inactive"
 
-    ext_service = client.wait_success(ext_service, 120)
+    ext_service = client.wait_success(ext_service, 300)
     assert ext_service.state == "inactive"
 
     wait_until_instances_get_stopped(client, service)
 
     env = env.activateservices()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
-    ext_service = client.wait_success(ext_service, 120)
+    ext_service = client.wait_success(ext_service, 300)
     assert ext_service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -325,7 +325,7 @@ def test_extservice_services_delete_service_add_service(client):
     assert service1.state == "inactive"
 
     service1 = service1.activate()
-    service1 = client.wait_success(service1, 120)
+    service1 = client.wait_success(service1, 300)
     assert service1.state == "active"
 
     service1.addservicelink(serviceLink={"serviceId": ext_service.id})
@@ -370,9 +370,9 @@ def test_extservice_delete_and_add_ext_service(client):
                                  networkMode=MANAGED_NETWORK,
                                  isolation=isolation)
 
-    c1 = client.wait_success(c1, 120)
+    c1 = client.wait_success(c1, 300)
     assert c1.state == "running"
-    c2 = client.wait_success(c2, 120)
+    c2 = client.wait_success(c2, 300)
     assert c2.state == "running"
 
     con_list = [c1, c2]
@@ -446,7 +446,7 @@ def test_extservice_services_restart_instance(client):
     service_instance = containers[0]
 
     # Restart external instance
-    service_instance = client.wait_success(service_instance.restart(), 120)
+    service_instance = client.wait_success(service_instance.restart(), 300)
     assert service_instance.state == 'running'
     time.sleep(restart_sleep_interval)
     validate_external_service(client, service,
@@ -475,7 +475,7 @@ def test_extservice_add_and_delete_ips(client):
                                  tty=True,
                                  networkMode=MANAGED_NETWORK,
                                  isolation=isolation)
-    c1 = client.wait_success(c1, 120)
+    c1 = client.wait_success(c1, 300)
     assert c1.state == "running"
 
     ips = [con_list[0].primaryIpAddress, con_list[1].primaryIpAddress,
@@ -483,7 +483,7 @@ def test_extservice_add_and_delete_ips(client):
     con_list.append(c1)
     ext_service = client.update(
         ext_service, name=ext_service.name, externalIpAddresses=ips)
-    ext_service = client.wait_success(ext_service, 120)
+    ext_service = client.wait_success(ext_service, 300)
 
     validate_external_service(client, service, [ext_service], port,
                               con_list)
@@ -494,7 +494,7 @@ def test_extservice_add_and_delete_ips(client):
     con_list.pop(0)
     ext_service = client.update(
         ext_service, name=ext_service.name, externalIpAddresses=ips)
-    ext_service = client.wait_success(ext_service, 120)
+    ext_service = client.wait_success(ext_service, 300)
 
     validate_external_service(client, service, [ext_service], port,
                               con_list)

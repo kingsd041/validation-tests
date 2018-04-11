@@ -471,7 +471,7 @@ def test_rancher_compose_service_links(client,
     service_link = {"serviceId": consumed_service.id, "ports": ["80"]}
     service.addservicelink(serviceLink=service_link)
 
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
 
 #   Launch env using docker compose
 
@@ -786,13 +786,13 @@ def rancher_compose_dns_services(client, port,
         # Launch Consumed Service2
         env_con = get_env(client, consumed_service)
         env_con = env_con.activateservices()
-        env_con = client.wait_success(env_con, 120)
+        env_con = client.wait_success(env_con, 300)
         assert env_con.state == "active"
         con_service1_id = env_con.id
         # Launch Consumed Service1
         env_con1 = get_env(client, consumed_service1)
         env_con1 = env_con1.activateservices()
-        env_con1 = client.wait_success(env_con1, 120)
+        env_con1 = client.wait_success(env_con1, 300)
         assert env_con1.state == "active"
         con_service2_id = env_con1.id
     else:
@@ -840,5 +840,5 @@ def get_rancher_compose_service(client, rancher_env_id, service):
     print service.kind
     if service.kind != 'externalService' and service.kind != 'dnsService':
         assert rancher_service.scale == service.scale
-    rancher_service = client.wait_success(rancher_service, 120)
+    rancher_service = client.wait_success(rancher_service, 300)
     return rancher_service

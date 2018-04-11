@@ -9,7 +9,7 @@ def test_webhook_scaleup(client):
 
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -56,7 +56,7 @@ def test_webhook_scaleup_beyond_max(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -117,7 +117,7 @@ def test_webhook_scaleup_beyond_max_1(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config, 2)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 2
 
@@ -184,7 +184,7 @@ def test_webhook_scaledown(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config, scale=3)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 3
 
@@ -235,7 +235,7 @@ def test_webhook_scaledown_below_min(client):
     service, env = create_env_and_svc(client, launch_config, scale=3)
     service = client.wait_success(service)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 3
 
@@ -299,7 +299,7 @@ def test_webhook_scaledown_below_min_1(client):
     service, env = create_env_and_svc(client, launch_config, scale=4)
     service = client.wait_success(service)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 4
 
@@ -364,7 +364,7 @@ def test_webhook_invalid_scale_action(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -431,7 +431,7 @@ def test_webhook_scaleup_invalid_zero_amount(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
 
     data = {
@@ -465,7 +465,7 @@ def test_webhook_scaleup_invalid_negative_amount(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -500,7 +500,7 @@ def test_webhook_scaleup_invalid_zero_min(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -536,7 +536,7 @@ def test_webhook_scaleup_invalid_negative_min(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -571,7 +571,7 @@ def test_webhook_scaleup_invalid_zero_max(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -607,7 +607,7 @@ def test_webhook_scaleup_invalid_negative_max(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -643,7 +643,7 @@ def test_webhook_duplicatename(client):
 
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -696,7 +696,7 @@ def test_webhook_external_service(client):
     ext_service = client.create_externalService(
         name=ext_service_name, stackId=env.id, hostname="google.com")
 
-    ext_service = client.wait_success(ext_service, 90)
+    ext_service = client.wait_success(ext_service, 180)
     assert ext_service.state == "inactive"
 
     activate_svc(client, ext_service)
@@ -737,7 +737,7 @@ def test_webhook_global_service(client):
     service, env = create_env_and_svc(
         client, launch_config, scale=None)
 
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
 
     assert service.state == "active"
 
@@ -821,7 +821,7 @@ def test_webhook_missing_projectid(client):
 
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -880,7 +880,7 @@ def test_webhook_invalid_projectid(client):
 
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -950,7 +950,7 @@ def test_webhook_invalid_token(client):
 
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -1020,7 +1020,7 @@ def test_webhook_execute_deleted_webhook(client):
 
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -1080,7 +1080,7 @@ def test_webhook_invalid_driver(client):
     launch_config = {"imageUuid": TEST_IMAGE_UUID}
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 
@@ -1115,7 +1115,7 @@ def test_webhook_list_single_webhook(client):
 
     service, env = create_env_and_svc(client, launch_config)
     assert service.state == "inactive"
-    service = client.wait_success(service.activate(), 180)
+    service = client.wait_success(service.activate(), 300)
     assert service.state == "active"
     assert service.scale == 1
 

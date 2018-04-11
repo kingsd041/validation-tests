@@ -29,10 +29,10 @@ def create_environment_with_dns_services(client,
     dns.addservicelink(serviceLink={"serviceId": consumed_service.id})
     dns.addservicelink(serviceLink={"serviceId": consumed_service1.id})
 
-    service = client.wait_success(service, 240)
-    consumed_service = client.wait_success(consumed_service, 240)
-    consumed_service1 = client.wait_success(consumed_service1, 240)
-    dns = client.wait_success(dns, 240)
+    service = client.wait_success(service, 400)
+    consumed_service = client.wait_success(consumed_service, 400)
+    consumed_service1 = client.wait_success(consumed_service1, 400)
+    dns = client.wait_success(dns, 400)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -174,10 +174,10 @@ def test_dns_link_when_services_still_activating(client):
     dns.addservicelink(serviceLink={"serviceId": consumed_service.id})
     dns.addservicelink(serviceLink={"serviceId": consumed_service1.id})
 
-    service = client.wait_success(service, 120)
-    consumed_service = client.wait_success(consumed_service, 120)
-    consumed_service1 = client.wait_success(consumed_service1, 120)
-    dns = client.wait_success(dns, 120)
+    service = client.wait_success(service, 400)
+    consumed_service = client.wait_success(consumed_service, 400)
+    consumed_service1 = client.wait_success(consumed_service1, 400)
+    dns = client.wait_success(dns, 400)
 
     assert service.state == "active"
     assert consumed_service.state == "active"
@@ -212,7 +212,7 @@ def test_dns_service_scale_up(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 400)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -241,7 +241,7 @@ def test_dns_services_scale_down(client):
 
     service = client.update(service, scale=final_service_scale,
                             name=service.name)
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 400)
     assert service.state == "active"
     assert service.scale == final_service_scale
 
@@ -271,7 +271,7 @@ def test_dns_consumed_services_scale_up(client):
     consumed_service = client.update(consumed_service,
                                      scale=final_consumed_service_scale,
                                      name=consumed_service.name)
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 400)
     assert consumed_service.state == "active"
     assert consumed_service.scale == final_consumed_service_scale
 
@@ -301,7 +301,7 @@ def test_dns_consumed_services_scale_down(client):
     consumed_service = client.update(consumed_service,
                                      scale=final_consumed_service_scale,
                                      name=consumed_service.name)
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 400)
     assert consumed_service.state == "active"
     assert consumed_service.scale == final_consumed_service_scale
 
@@ -362,7 +362,7 @@ def test_dns_consumed_services_restart_instance(client):
     container = containers[0]
 
     # Restart instance
-    container = client.wait_success(container.restart(), 120)
+    container = client.wait_success(container.restart(), 400)
     assert container.state == 'running'
 
     validate_dns_service(
@@ -420,12 +420,12 @@ def test_dns_consumed_services_deactivate_activate(client):
         dns.name)
 
     consumed_service = consumed_service.deactivate()
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 400)
     assert consumed_service.state == "inactive"
     wait_until_instances_get_stopped(client, consumed_service)
 
     consumed_service = consumed_service.activate()
-    consumed_service = client.wait_success(consumed_service, 120)
+    consumed_service = client.wait_success(consumed_service, 400)
     assert consumed_service.state == "active"
 
     validate_dns_service(
@@ -450,12 +450,12 @@ def test_dns_service_deactivate_activate(client):
         dns.name)
 
     service = service.deactivate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 400)
     assert service.state == "inactive"
     wait_until_instances_get_stopped(client, service)
 
     service = service.activate()
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 400)
     assert service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -481,20 +481,20 @@ def test_dns_deactivate_activate_environment(client):
         dns.name)
 
     env = env.deactivateservices()
-    service = client.wait_success(service, 240)
+    service = client.wait_success(service, 400)
     assert service.state == "inactive"
 
-    consumed_service = client.wait_success(consumed_service, 240)
+    consumed_service = client.wait_success(consumed_service, 400)
     assert consumed_service.state == "inactive"
 
     wait_until_instances_get_stopped(client, service)
     wait_until_instances_get_stopped(client, consumed_service)
 
     env = env.activateservices()
-    service = client.wait_success(service, 240)
+    service = client.wait_success(service, 400)
     assert service.state == "active"
 
-    consumed_service = client.wait_success(consumed_service, 240)
+    consumed_service = client.wait_success(consumed_service, 400)
     assert consumed_service.state == "active"
     time.sleep(restart_sleep_interval)
 
@@ -533,7 +533,7 @@ def test_dns_add_remove_servicelinks(client):
     assert consumed_service2.state == "inactive"
 
     consumed_service2 = consumed_service2.activate()
-    consumed_service2 = client.wait_success(consumed_service2, 120)
+    consumed_service2 = client.wait_success(consumed_service2, 400)
     assert consumed_service2.state == "active"
 
     # Add another service link
@@ -594,7 +594,7 @@ def test_dns_services_delete_service_add_service(client):
     assert service1.state == "inactive"
 
     service1 = service1.activate()
-    service1 = client.wait_success(service1, 120)
+    service1 = client.wait_success(service1, 400)
     assert service1.state == "active"
 
     service1.addservicelink(serviceLink={"serviceId": dns.id})
@@ -648,7 +648,7 @@ def test_dns_services_delete_and_add_consumed_service(client):
     assert consumed_service2.state == "inactive"
 
     consumed_service2 = consumed_service2.activate()
-    consumed_service2 = client.wait_success(consumed_service2, 120)
+    consumed_service2 = client.wait_success(consumed_service2, 400)
     assert consumed_service2.state == "active"
 
     service_link = {"serviceId": consumed_service2.id}
@@ -715,7 +715,7 @@ def test_dns_services_restart_instance(client):
     service_instance = containers[0]
 
     # Restart service instance
-    service_instance = client.wait_success(service_instance.restart(), 120)
+    service_instance = client.wait_success(service_instance.restart(), 400)
     assert service_instance.state == 'running'
     time.sleep(restart_sleep_interval)
     validate_dns_service(
@@ -774,11 +774,11 @@ def test_dns_dns_deactivate_activate(client):
         dns.name)
 
     dns = dns.deactivate()
-    dns = client.wait_success(dns, 120)
+    dns = client.wait_success(dns, 400)
     assert dns.state == "inactive"
 
     dns = dns.activate()
-    dns = client.wait_success(dns, 120)
+    dns = client.wait_success(dns, 400)
     assert dns.state == "active"
 
     validate_dns_service(
@@ -816,7 +816,7 @@ def test_dns_add_remove_servicelinks_using_set(client):
     assert consumed_service1.state == "inactive"
 
     consumed_service1 = consumed_service1.activate()
-    consumed_service1 = client.wait_success(consumed_service1, 120)
+    consumed_service1 = client.wait_success(consumed_service1, 400)
     assert consumed_service1.state == "active"
 
     # Add another service link using setservicelinks

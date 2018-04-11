@@ -436,7 +436,7 @@ def test_services_random_expose_port_exhaustrange(
     service, env = create_env_and_svc(client, launch_config, 3)
 
     env = env.activateservices()
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
 
     wait_for_condition(client,
                        service,
@@ -1859,8 +1859,8 @@ def check_for_service_reconciliation_on_stop(client, service,
         stop_container_from_host(client, container1)
         stop_container_from_host(client, container2)
     else:
-        client.wait_success(container1.stop(), 120)
-        client.wait_success(container2.stop(), 120)
+        client.wait_success(container1.stop(), 300)
+        client.wait_success(container2.stop(), 300)
     service = wait_state(client, service, "active")
 
     wait_for_scale_to_adjust(client, service)

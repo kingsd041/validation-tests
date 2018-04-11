@@ -738,10 +738,10 @@ def test_dns_discovery_for_sidekick_containers_by_name_and_fqdn_cross_stack(
     env, service, service_name, consumed_service_name = \
         create_env_with_sidekick(client, service_scale, port)
     env = env.activateservices()
-    env = client.wait_success(env, 120)
+    env = client.wait_success(env, 300)
     assert env.state == "active"
 
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
 
     validate_sidekick(client, service, service_name,
@@ -790,10 +790,10 @@ def test_dns_discovery_for_service_with_sidekick(client):
         create_env_with_sidekick(client, service_scale, port)
 
     env = env.activateservices()
-    env = client.wait_success(env, 120)
+    env = client.wait_success(env, 300)
     assert env.state == "active"
 
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     dnsname = service.secondaryLaunchConfigs[0].name
 
@@ -838,10 +838,10 @@ def test_dns_discovery_for_service_with_sidekick_cross_stack(
         create_env_with_sidekick(client, service_scale, port)
 
     env = env.activateservices()
-    env = client.wait_success(env, 120)
+    env = client.wait_success(env, 300)
     assert env.state == "active"
 
-    service = client.wait_success(service, 120)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     dnsname = service.secondaryLaunchConfigs[0].name
 

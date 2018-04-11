@@ -327,7 +327,7 @@ def cli_create_stop_start_service(client, compose_directory,
 
     command = "stop " + service.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
     assert service. state == "inactive"
     if service.id in cli_response:
         assert True
@@ -335,12 +335,12 @@ def cli_create_stop_start_service(client, compose_directory,
     container_list = get_service_container_list(client, service)
     assert len(container_list) == 2
     for container in container_list:
-        container = client.wait_success(container, 60)
+        container = client.wait_success(container, 300)
         assert container.state == "stopped"
 
     command = "start " + service.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
     assert service.state == "active"
     if service.id in cli_response:
         assert True
@@ -385,7 +385,7 @@ def cli_create_activate_deactivate_service(client,
 
     command = "deactivate " + service.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
     assert service.state == "inactive"
     if service.id in cli_response:
         assert True
@@ -398,7 +398,7 @@ def cli_create_activate_deactivate_service(client,
 
     command = "activate " + service.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
     if service.id in cli_response:
         assert True
 
@@ -511,14 +511,14 @@ def test_cli_restart_container(client, rancher_cli_container):
                                         networkMode=MANAGED_NETWORK,
                                         imageUuid=TEST_IMAGE_UUID)
 
-    container = client.wait_success(container, 60)
+    container = client.wait_success(container, 300)
     assert container.state == "running"
     assert container.startCount == 1
 
     print "The container id is:" + container.id
     command = "restart --type container " + container.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    container = client.wait_success(container, 60)
+    container = client.wait_success(container, 300)
     print "CLI response is"
     print cli_response
     if container.id in cli_response:
@@ -564,7 +564,7 @@ def cli_delete_service(client, compose_directory,
 
     command = "rm --type service " + stack_name + "/" + service.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    container = client.wait_success(service, 60)
+    container = client.wait_success(service, 300)
     if service.id in cli_response:
         assert True
     mystack = client.list_stack(name=stack_name)
@@ -585,7 +585,7 @@ def test_cli_delete_container(client, rancher_cli_container):
                                         networkMode=MANAGED_NETWORK,
                                         imageUuid=TEST_IMAGE_UUID)
 
-    container = client.wait_success(container, 60)
+    container = client.wait_success(container, 300)
 
     print "The container id is:" + container.id
     command = "rm --type container " + container.id
@@ -593,7 +593,7 @@ def test_cli_delete_container(client, rancher_cli_container):
     cli_response = execute_rancher_cli(client, stack_name, command)
     print "The CLI response is"
     print cli_response
-    container = client.wait_success(container, 60)
+    container = client.wait_success(container, 300)
     if container.id in cli_response:
         print container.state
         assert True
@@ -672,7 +672,7 @@ def cli_show_services(client, compose_directory,
     # in ps -a command
     command = "stop " + service2.name
     cli_response = execute_rancher_cli(client, stack_name, command)
-    service = client.wait_success(service2, 60)
+    service = client.wait_success(service2, 300)
     assert service.state == "inactive"
     if service.id in cli_response:
         assert True
@@ -781,7 +781,7 @@ def cli_increment_scale(client, compose_directory,
     print cli_response
     if expected_response in cli_response:
         assert True
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
     container_list = get_service_container_list(client, service)
     assert len(container_list) == 3
     for container in container_list:
@@ -826,7 +826,7 @@ def cli_decrement_scale(client,
     print cli_response
     if expected_response in cli_response:
         assert True
-    service = client.wait_success(service, 60)
+    service = client.wait_success(service, 300)
     container_list = get_service_container_list(client, service)
     assert len(container_list) == 1
     for container in container_list:
@@ -945,7 +945,7 @@ def cli_create_restart_containers_of_service(client, compose_directory,
         assert container.startCount == 1
         command = "restart --type container " + container.id
         cli_response = execute_rancher_cli(client, stack_name, command)
-        container = client.wait_success(container, 60)
+        container = client.wait_success(container, 300)
         if container.id in cli_response:
             assert True
         assert container.state == "running"
@@ -1856,7 +1856,7 @@ def cli_prune_services(client, rancher_cli_container):
         assert container.state == "running"
 
     # check service3 and its container are removed
-    service3 = client.wait_success(service3, 60)
+    service3 = client.wait_success(service3, 300)
     assert service3.state == "removed"
     assert service3.name == "rtest18-three"
 
