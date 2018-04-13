@@ -42,6 +42,7 @@ def test_sibling_pinging(client, one_per_host):
     delete_all(client, instances)
 
 
+@pytest.mark.skipif(True, reason="Temporarily to skip")
 def test_dynamic_port(client, test_name):
     c = client.create_container(name=test_name,
                                 networkMode=MANAGED_NETWORK,
@@ -69,6 +70,7 @@ def test_dynamic_port(client, test_name):
 
 
 # Known issue #12490 and #11139
+@pytest.mark.skipif(True, reason="Known issue #12490 and #11139")
 def test_linking(client, admin_client, test_name):
 
     hosts = client.list_host(kind='docker', removed_null=True)
@@ -121,6 +123,7 @@ def test_linking(client, admin_client, test_name):
     delete_all(client, [link_client, link_server, link_server2])
 
 
+@pytest.mark.skipif(True, reason="Temporarily to skip")
 def test_ip_inject(client, test_name):
     cleanup_items = []
     try:
