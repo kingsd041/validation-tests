@@ -1,4 +1,4 @@
-# Validation tests for Rancher
+# Validation tests for Rancher 
 ------------------------------
 ### Pre-reqs
 
@@ -15,47 +15,42 @@ To run from scratch:
 Running v2-beta validation tests:
 **************************************
 
-1 - Environment global variables required for v2 version of tests (upgrade support) to work depends on the type of tests, for cattle:
+1 - Environment global variables required for v2 version of tests (upgrade support) to work depends on the type of tests, for windows:
 
 ```
 export CATTLE_TEST_URL=http://x.x.x.x:8080
 export CATTLE_RESTART_SLEEP_INTERVAL=10
 export ACCESS_KEY=xxxxx
 export SECRET_KEY=xxxxx
-export PROJECT_ID=1a5
+export PROJECT_ID=1a7
+export PROJECT_NAME=win
 ```
 
 For k8s:
 
-```
-export CATTLE_TEST_URL=http://x.x.x.x:8080
-export TEST_CATALOG=false
-export RANCHER_ORCHESTRATION=k8s
-export KUBECTL_VERSION=v1.6.0
-export DIGITALOCEAN_KEY=xxxxxxxxxxxxxx
-export K8S_DEPLOY=False
-export K8S_STATIC_ENV=k8s
-export K8S_DEPLOY_DEFAULT=False
-export LIBRARY_CATALOG_URL=https://github.com/rancher/rancher-catalog
-export LIBRARY_CATALOG_BRANCH=master
-export OVERRIDE_CATALOG=False
-export ACCESS_KEY=xxxxx
-export SECRET_KEY=xxxxx
-export PROJECT_ID=1a5
-```
 
 2 - Edit the tox.ini file in v2_validation directory `tests/v2_validation/tox.ini` to run the specific tests if needed, change by adding to the command:
 
 ```
 [testenv]
 deps=-rrequirements.txt
-commands=py.test --durations=20 --junitxml=validationTestsJunit.xml cattlevalidationtest/core/test_k8s.py::test_k8s_env_rollingupdates {posargs}
+commands=py.test --durations=20 --junitxml=validationTestsJunit.xml cattlevalidationtest/core/test_container.py::test_sibling_pinging {posargs}
 passenv=*
 ```
 
-The previous example will run the `test_k8s_env_rollingupdates` test case in `test_k8s.py` validation
+The previous example will run the `test_sibling_pinging` test case in `test_container.py` validation
 
-3 - Run the tests
+3 - Because the windows image is too large, please pull the test image in advance
+```
+docker pull microsoft/nanoserver:latest
+docker pull microsoft/nanoserver:sac2016
+docker pull kingsd/windowsssh:v0.22
+docker pull kingsd/win-nginx:v0.4
+docker pull kingsd/win-testmultipleport:v0.14
+docker pull kingsd/win-nodejs:5.0
+```
+
+4 - Run the tests
 ```
 ./scripts/test_v2-beta
 ```
