@@ -26,7 +26,6 @@ export PROJECT_ID=1a7
 export PROJECT_NAME=win
 ```
 
-For k8s:
 
 
 2 - Edit the tox.ini file in v2_validation directory `tests/v2_validation/tox.ini` to run the specific tests if needed, change by adding to the command:
