@@ -40,7 +40,15 @@ passenv=*
 
 The previous example will run the `test_sibling_pinging` test case in `test_container.py` validation
 
-3 - Because the windows image is too large, please pull the test image in advance
+3 - Configures the Docker Engine to accept incoming connections on port 2375.
+    The configuration file can be found at 'C:\ProgramData\Docker\config\daemon.json'. If this file does not already exist, it can be created.
+```
+{
+    "hosts": ["tcp://0.0.0.0:2375", "npipe://"]
+}
+```
+
+4 - Because the windows image is too large, pull the test image on each host
 ```
 docker pull microsoft/nanoserver:latest
 docker pull microsoft/nanoserver:sac2016
@@ -50,7 +58,7 @@ docker pull kingsd/win-testmultipleport:v0.14
 docker pull kingsd/win-nodejs:5.0
 ```
 
-4 - Run the tests
+5 - Run the tests
 ```
 ./scripts/test_v2-beta
 ```
